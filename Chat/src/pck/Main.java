@@ -50,21 +50,21 @@ import javafx.stage.Stage;
 	 */
 	public class Main extends Application {
 		
-		TextField namefield = new TextField();
-        TextField roomfield = new TextField();
-        Button button =  new Button("Connect");
-        ChoiceBox choicebox = new ChoiceBox();
-        static ArrayList<String> rooms = new ArrayList();
-        static ArrayList<String> users = new ArrayList();
-        GridPane root = createWindow();
-        Scene scene = new Scene(root, 400,400);
-
+		static TextField namefield = new TextField();
+        static TextField roomfield = new TextField();
+        static Button button =  new Button("Connect");
+        static ChoiceBox choicebox = new ChoiceBox();
+        static ArrayList<Room> rooms = new ArrayList();
+        static GridPane root;
+        static Scene scene;
+        
+        
         
 	    public static void main(String[] args) {
-	        rooms.add("room1");
-	        rooms.add("room2");
-	        rooms.add("room3");
-	        rooms.add("room4");
+	    	createRooms(5);
+	    	root = createWindow();
+	    	scene = new Scene(root, 400,400);
+	 
 	        Application.launch(Main.class, args);
 	    }
 	    
@@ -77,16 +77,17 @@ import javafx.stage.Stage;
 	    
 	    }
 	    
-	    GridPane createWindow() {
+	    static GridPane createWindow() {
 	    	GridPane root = new GridPane();
 	        Label label = new Label("W E L L C O M E");
 	        Label namelabel = new Label("Name: ");
 	        Label roomlabel = new Label("Room: ");
 	        choicebox = new ChoiceBox();
 	        
-	        for (String item : rooms)
-	        	choicebox.getItems().add(item);
-	        choicebox.setValue(rooms.get(0));
+	        for (Room room : rooms) {
+	        	choicebox.getItems().add(room.roomName);
+	        }
+	        choicebox.setValue(rooms.get(0).roomName);
 	        choicebox.setTooltip(new Tooltip("Select the language"));
 
 	        
@@ -135,21 +136,20 @@ import javafx.stage.Stage;
 	    
 	    void handle() {
         	String newuser = namefield.getText();
+        	String roomName = (String) choicebox.getValue();
         	if (newuser.length() == 0) {
         		String name = getRandomName();
-        		users.add(name);
+        		addUserToRoom(roomName, newuser);
         		System.out.println("new user name: " + name);
-    			button.getScene().getWindow().hide();
-    	        createChatWindow();       		
+    			//button.getScene().getWindow().hide();
+    	        //createChatWindow();       		
         		}
         	else {
-        		boolean test = true;
-            	for (String user : users) if (newuser.equals(user)) {test = false;}
-            	if (test) {
-            		users.add(newuser);
-            		System.out.println("testing button event: txt field value: \n" +namefield.getText());
-    	        	System.out.println((String) choicebox.getValue());
-            		createChatWindow();
+        		boolean test = searchUser(rooms, newuser);
+            	if (!test) {
+            		addUserToRoom(roomName, newuser);
+        			//button.getScene().getWindow().hide();
+            		//createChatWindow();
     	        	
     	        	}
             	else System.out.println("Enter Another name");
@@ -159,16 +159,17 @@ import javafx.stage.Stage;
 	    String getRandomName() {
 	    	String name;
 	    	for (int i = 0; ; i++)
-	    		if(!compare((name="user" + i),users))
+	    		if(!compare((name="user" + i),rooms))
 					break;
 	    	return name;
 	    }
 	    
-	    boolean compare(String user1, ArrayList<String> users) {
+	    boolean compare(String randomname, ArrayList<Room> rooms) {
 	    	boolean test = false;
-	    	for (String u : users)
-	    		if (u.equals(user1))
-	    			test = true;
+	    	for(Room room : rooms) {
+	    		for (String username : room.userslist)
+	    			if(randomname.equals(username))  {test = true;}
+	    	}
 	    	return test;
 	    }
 	    void createChatWindow() {
@@ -176,6 +177,34 @@ import javafx.stage.Stage;
 			stage.setScene(new Scene(new Window().createWindow(),400,400));
 			stage.show();
 	    }
+	    
+	   static void createRooms(int size){
+		   for (int i = 0 ; i<size; i++)
+			   rooms.add(new Room("Room" + i));
+	    }
+	   
+	   void addUserToRoom(String roomName, String userName) {
+		   for (Room room : rooms) {
+			   if (room.roomName.contentEquals(roomName))
+				   room.addUser(userName);
+		   }
+	   }
+	   
+	   boolean searchUser(ArrayList<Room> rooms , String newUser) {
+		   boolean test = false;
+		   for (Room room : rooms) {
+			   if (room.searchUser(newUser)) { test = true; }
+		   }
+		   return test;
+	   }
+	   int getRoomForName(String roomName, ArrayList<Room> rooms) {
+		   int k=0;
+		   for (int i = 0; i <rooms.size(); i++) {
+			   if (rooms.get(i).roomName.equals(roomName))
+				   k = i;
+		   }
+		   return k;
+	   }
 	 
 
 	}
