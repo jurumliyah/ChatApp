@@ -1,9 +1,7 @@
 package pck;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -11,43 +9,20 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import javafx.application.Application;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.scene.control.Control;
-import javafx.scene.Scene;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
  
-	/**
-	 * Sample application that shows how the sized of controls can be managed.
-	 * Sample is for demonstration purposes only, most controls are inactive.
-	 */
 	public class Main extends Application {
 		
 		static TextField namefield = new TextField();
@@ -57,18 +32,28 @@ import javafx.stage.Stage;
         static ArrayList<Room> rooms = new ArrayList();
         static GridPane root;
         static Scene scene;
+        static Window window = new Window();
+        static BorderPane root2 = window.createWindow();
+        static Socket socket;
+        static ObjectInputStream in;
+        static ObjectOutputStream out;
+        static String roomName;
+        static String userName;
         
-        
-        
-	    public static void main(String[] args) {
-	    	createRooms(5);
-	    	root = createWindow();
-	    	scene = new Scene(root, 400,400);
-	 
+        static int port = 4909;
+        static String adress = "localhost";
+   
+	    public static void main(String[] args) {	
+	    	establishConnection();
+    		window.setRooms(rooms);
+    		
+	    	System.out.println("prva linija");
 	        Application.launch(Main.class, args);
 	    }
 	    
 	    public void start(Stage primaryStage) {
+	    	root = createWindow();
+	    	scene = new Scene(root, 400,400);
 	        
 	        button.setOnAction( e -> {handle();});
 	        
@@ -104,15 +89,10 @@ import javafx.stage.Stage;
 	        choicebox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 	        choicebox.setMaxHeight(ChoiceBox.USE_PREF_SIZE- 10);
 
-
-	        
 	        HBox h1 = new HBox();
 	        HBox h2 = new HBox();
 	        VBox vbox = new VBox();
 	        vbox.setSpacing(10);
-	        //h1.setFillHeight(true);
-	        //h1.setPadding(new Insets(30,30,30,30));
-	        //h2.setPadding(new Insets(30,30,30,30));
 	        
 	        h1.getChildren().addAll(namelabel, namefield);
 	        h2.getChildren().addAll(roomlabel, choicebox);
@@ -135,76 +115,135 @@ import javafx.stage.Stage;
 	    }
 	    
 	    void handle() {
-        	String newuser = namefield.getText();
+	    
+        	String newUser = namefield.getText();
         	String roomName = (String) choicebox.getValue();
-        	if (newuser.length() == 0) {
+        	if (newUser.length() == 0) {
         		String name = getRandomName();
-        		addUserToRoom(roomName, newuser);
         		System.out.println("new user name: " + name);
     			//button.getScene().getWindow().hide();
-    	        //createChatWindow();       		
-        		}
+        		addMeToServer(roomName,newUser);
+        		getUpdate();
+        		//window.scrollpane2.setContent(new Text("blabla"));
+    	        createChatWindow();  
+
+    	        }
         	else {
-        		boolean test = searchUser(rooms, newuser);
+        		boolean test = checkUser (newUser);
             	if (!test) {
-            		addUserToRoom(roomName, newuser);
         			//button.getScene().getWindow().hide();
-            		//createChatWindow();
-    	        	
-    	        	}
-            	else System.out.println("Enter Another name");
+            		addMeToServer(roomName,newUser);
+            		getUpdate();
+            		createChatWindow();
+            		    	        	}
+            	else { System.out.println("Enter Another name"); new Popup();}
         		}
         	}
 	    
 	    String getRandomName() {
 	    	String name;
 	    	for (int i = 0; ; i++)
-	    		if(!compare((name="user" + i),rooms))
+	    		if (!checkUser(name="user" + i))
 					break;
 	    	return name;
 	    }
 	    
-	    boolean compare(String randomname, ArrayList<Room> rooms) {
-	    	boolean test = false;
-	    	for(Room room : rooms) {
-	    		for (String username : room.userslist)
-	    			if(randomname.equals(username))  {test = true;}
-	    	}
-	    	return test;
-	    }
+
 	    void createChatWindow() {
+	    	//scene.setRoot(root2);
 	    	Stage stage = new Stage();
-			stage.setScene(new Scene(new Window().createWindow(),400,400));
+			stage.setScene(new Scene(root2,400,400));
 			stage.show();
+			
 	    }
-	    
-	   static void createRooms(int size){
-		   for (int i = 0 ; i<size; i++)
-			   rooms.add(new Room("Room" + i));
-	    }
-	   
-	   void addUserToRoom(String roomName, String userName) {
-		   for (Room room : rooms) {
-			   if (room.roomName.contentEquals(roomName))
-				   room.addUser(userName);
-		   }
-	   }
-	   
-	   boolean searchUser(ArrayList<Room> rooms , String newUser) {
-		   boolean test = false;
-		   for (Room room : rooms) {
-			   if (room.searchUser(newUser)) { test = true; }
-		   }
+    
+	   static boolean checkUser(String name) {
+		   CheckUserMessage msg = new CheckUserMessage(name);
+		   boolean test= false;
+		   try {
+			out.writeObject(msg);
+			out.reset();
+			boolean help  = (boolean)in.readObject();
+			test = help;
+			
+		   } catch (IOException e) {e.printStackTrace();
+		   } catch (ClassNotFoundException e) {e.printStackTrace();}
 		   return test;
 	   }
-	   int getRoomForName(String roomName, ArrayList<Room> rooms) {
-		   int k=0;
-		   for (int i = 0; i <rooms.size(); i++) {
-			   if (rooms.get(i).roomName.equals(roomName))
-				   k = i;
-		   }
-		   return k;
-	   }
-	 
-
+	   
+	   static void establishConnection() {
+			try {
+				socket = new Socket(adress,port);
+				in = new ObjectInputStream(socket.getInputStream());
+				out = new ObjectOutputStream(socket.getOutputStream());	
+				rooms = (ArrayList<Room>)in.readObject();
+			
+			} catch (UnknownHostException e) {e.printStackTrace();
+			} catch (IOException e) {e.printStackTrace();
+			} catch (ClassNotFoundException e) {e.printStackTrace();
+			}
+			
 	}
+	   
+		static String getRoomName (String userName) {
+			String name = null;
+			for (Room room : rooms) {
+				for (String user : room.userslist) {
+					if (user.equals(userName)) {
+						name = room.roomName;
+					}
+				}
+			}
+			return name;
+		}
+	   
+		static void addMeToServer(String roomName, String newUser) {
+			AddMeMessage msg = new AddMeMessage(roomName, newUser);
+			try {
+				out.writeObject(msg);
+				out.reset();
+			} catch (IOException e) {e.printStackTrace();
+			}
+		}
+		static void updateUser(UpdateUser msg) {
+
+			String userName = msg.userName;
+			String roomName = msg.roomName;
+			
+			for (Room room : rooms) {
+				if (room.roomName.contentEquals(roomName)) {
+					room.addUser(userName);
+				}
+			}
+			
+		}
+		
+		
+		public void getUpdate() {
+			UpdateUser msg;
+			try {
+				msg = (UpdateUser) in.readObject();
+				window.addUser(msg.roomName, msg.userName);
+			} catch (IOException | ClassNotFoundException e) {e.printStackTrace();
+			}
+		}
+/*
+		@Override
+		public void run() {			 
+				 Message msg;
+				try {
+					while ( ( msg = (Message) in.readObject()) != null) {
+						if (msg instanceof UpdateUser) {
+							updateUser((UpdateUser) msg);
+							window.scrollpane2.setContent(new Text(((UpdateUser) msg).userName));
+				
+						}
+					}
+				} catch (ClassNotFoundException e) {e.printStackTrace();
+				} catch (IOException e) {e.printStackTrace();
+				}
+	
+	}
+		*/
+
+}

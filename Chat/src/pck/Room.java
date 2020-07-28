@@ -1,8 +1,9 @@
 package pck;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Room {
+public class Room implements Serializable{
 	
 	String roomName;
 	ArrayList<String> userslist = new ArrayList<String>();

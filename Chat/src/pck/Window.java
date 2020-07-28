@@ -2,12 +2,18 @@ package pck;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -24,40 +30,64 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 
 public class Window {
-	String redcode = "#3d0100;";
-	String greencode = "#276932;";
-	String bluecode = "#282b4d;";
-	String defaultcolorcode = "#e6e6e6;"; 
-	ArrayList <String> users = new ArrayList();
-	ArrayList <String> rooms = new ArrayList();
-
+	String redcode;
+	String greencode;
+	String bluecode;
+	String defaultcolorcode; 
+	ArrayList <Room> rooms;
+	BorderPane window;
+	GridPane colors;
+	GridPane right;
+	GridPane bottom;
+	GridPane center;
+	Text text;
+	ScrollPane scrollpane;
+	VBox scrollpane2;
+	ScrollPane scrollpane3;
+	ListView<String> list;
+	
+	Window(){
+		 redcode = "#3d0100;";
+		 greencode = "#276932;";
+		 bluecode = "#282b4d;";
+		 defaultcolorcode = "#e6e6e6;"; 
+		 rooms = new ArrayList<Room>();
+		 window = new BorderPane();
+		 colors = new GridPane();
+		 right = new GridPane();
+		 bottom = new GridPane();
+		 center = new GridPane();
+		 text = new Text("");
+		 scrollpane = new ScrollPane();
+		 scrollpane2 = new VBox();
+		 scrollpane3 = new ScrollPane();
+         list = new ListView<String>();
+         list.setOrientation(Orientation.VERTICAL);
+         }
 	
 	BorderPane createWindow() {
-		BorderPane window = new BorderPane();
-		GridPane colors = new GridPane();
-		GridPane right = new GridPane();
-		GridPane bottom = new GridPane();
-		GridPane center = new GridPane();
 		
-		Text text = new Text("eeee");
-		ScrollPane scrollpane = new ScrollPane();
-		ScrollPane scrollpane2 = new ScrollPane();
-		ScrollPane scrollpane3 = new ScrollPane();
 		scrollpane.setContent(text);
 		center.getColumnConstraints().add(new GridCol(1));
 		center.getRowConstraints().add(new GridRow(1));
 		center.add(scrollpane, 0, 0);
 
 		
-		scrollpane2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-		scrollpane2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		//scrollpane2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		//scrollpane2.setMaxWidth(120);
+		scrollpane3.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
 		
 		right.getRowConstraints().add(new GridRow(0,35));
 		right.getRowConstraints().add(new GridRow(1,65));
 		right.getColumnConstraints().add(new GridCol(1));
 		right.add(scrollpane2, 0, 0);
 		right.add(scrollpane3, 0, 1);
-		right.setMinWidth(120);
+		right.setMinWidth(10);
+		right.setMaxWidth(200);
+		right.setPrefWidth(200);
+
+
 	
 		//CREATING  BOTTOM PANE WITH SEND BUTTON AND TEXTFIELD//
 		TextField type = new TextField();
@@ -101,6 +131,12 @@ public class Window {
         text.setStyle("-fx-fill:black;");
         });
         
+       /* type.setOnAction((event)->{
+            this.sendText(user+": "+textfield.getText());
+            type.setText("");
+           });
+           */
+        
         for (int i = 0; i<4; i++) {colors.getColumnConstraints().add(new GridCol(4));}
 		colors.getRowConstraints().add(new GridRow(1));
 		colors.add(defaultcolor, 0, 0);
@@ -110,15 +146,36 @@ public class Window {
         colors.setPadding(new Insets(0,120,0,0));
 		
 		//for (int i = 0; i<2; i++) {right.getRowConstraints().add(new GridRow(2));}
-		
         
+        
+        list.setOnMouseClicked((MouseEvent event) -> {
+            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2){
+                System.out.println(list.getSelectionModel().getSelectedItem());
+            }
+        });
+    
+	     
 		window.setTop(colors);
 		window.setCenter(center);
 		window.setRight(right);
 		window.setBottom(bottom);
 
-		
 		return window;
 	}
+	
+	 public void setRooms(ArrayList<Room> rooms) {
+		this.rooms = rooms;
+    		for (Room r : rooms) {
+    			this.list.getItems().add(r.roomName);
+    		}	
+		this.scrollpane2.getChildren().add(this.list);
+		
+	}
 
+	 public void addUser(String roomName, String userName) {
+		 for (Room r : rooms) {
+			 if (r.roomName.equals(roomName)) {
+			 }
+		 }
+	 }
 }
