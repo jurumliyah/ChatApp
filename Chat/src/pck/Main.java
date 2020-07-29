@@ -129,9 +129,9 @@ import java.util.ArrayList;
         	String newUser = namefield.getText();
         	String roomName = (String) choicebox.getValue();
         	if (newUser.length() == 0) {
-        		String name = getRandomName();
-        		userName = name;
-        		System.out.println("new user name: " + name);
+        		newUser = getRandomName();
+        		userName = newUser;
+        		System.out.println("new user name: " + newUser);
     			//button.getScene().getWindow().hide();
         		addMeToServer(roomName,newUser);
         		getUpdate();

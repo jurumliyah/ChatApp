@@ -36,6 +36,13 @@ public class ChatServer extends Thread {
 		rooms.add(new Room("room11"));
 
 		createServer();
+		try {
+			out.close();
+			in.close();
+			server.close();
+			socket.close();
+		} catch (IOException e) {e.printStackTrace();}
+
 
 	}
 	
