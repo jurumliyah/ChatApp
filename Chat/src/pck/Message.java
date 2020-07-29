@@ -2,6 +2,7 @@ package pck;
 
 import java.io.Serializable;
 
-public interface Message extends Serializable{
+public class Message implements Serializable{
+    Message(){}
 
 }

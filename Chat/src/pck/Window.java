@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -26,8 +28,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 public class Window {
 	String redcode;
@@ -45,6 +48,10 @@ public class Window {
 	VBox scrollpane2;
 	ScrollPane scrollpane3;
 	ListView<String> list;
+	ChatLog chatLog = new ChatLog("");
+	Button button;
+	TextField type;
+	TextFlow textflow;
 	
 	Window(){
 		 redcode = "#3d0100;";
@@ -57,17 +64,21 @@ public class Window {
 		 right = new GridPane();
 		 bottom = new GridPane();
 		 center = new GridPane();
-		 text = new Text("");
+		 textflow = new TextFlow();
+		 text = new Text();
 		 scrollpane = new ScrollPane();
 		 scrollpane2 = new VBox();
 		 scrollpane3 = new ScrollPane();
          list = new ListView<String>();
          list.setOrientation(Orientation.VERTICAL);
+         button = new Button("Send");
+ 		 type = new TextField();
+ 		 
          }
 	
 	BorderPane createWindow() {
 		
-		scrollpane.setContent(text);
+		scrollpane.setContent(textflow);
 		center.getColumnConstraints().add(new GridCol(1));
 		center.getRowConstraints().add(new GridRow(1));
 		center.add(scrollpane, 0, 0);
@@ -86,12 +97,9 @@ public class Window {
 		right.setMinWidth(10);
 		right.setMaxWidth(200);
 		right.setPrefWidth(200);
-
-
 	
 		//CREATING  BOTTOM PANE WITH SEND BUTTON AND TEXTFIELD//
-		TextField type = new TextField();
-		Button button = new Button("Send");
+		//Button button = new Button("Send");
 		type.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		button.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		bottom.getRowConstraints().add(new GridRow(1));
@@ -163,7 +171,30 @@ public class Window {
 		return window;
 	}
 	
-	 public void setRooms(ArrayList<Room> rooms) {
+	public void settextflow(String text) {
+		String time = text.substring(0, 17);
+		System.out.println(time);
+		Text colorfultime = new Text();
+		colorfultime.setText(time);
+		colorfultime.setFill(javafx.scene.paint.Color.CRIMSON);
+		colorfultime.setFont(new Font(11));
+		
+		
+		Text help = new Text();
+		String rest = text.substring(17);
+		help.setText(rest);
+		help.setFill(javafx.scene.paint.Color.valueOf("#040a14"));
+		help.setFont(new Font(13));
+		//help.setStyle("-fx-font-weight: lightbold;");
+
+		this.textflow.getChildren().addAll(colorfultime, help);
+	    this.textflow.getChildren().add(new Text(System.lineSeparator()));
+		
+	}
+	
+	
+
+	public void setRooms(ArrayList<Room> rooms) {
 		this.rooms = rooms;
     		for (Room r : rooms) {
     			this.list.getItems().add(r.roomName);
