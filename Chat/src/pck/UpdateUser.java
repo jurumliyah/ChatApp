@@ -1,6 +1,6 @@
 package pck;
 
-public class UpdateUser implements Message{
+public class UpdateUser extends Message{
 	String userName;
 	String roomName;
 	UpdateUser(String roomName, String userName){

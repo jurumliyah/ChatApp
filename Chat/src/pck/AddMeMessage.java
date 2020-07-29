@@ -1,6 +1,6 @@
 package pck;
 
-public class AddMeMessage implements Message{
+public class AddMeMessage extends Message{
 	String userName;
 	String roomName;
 	AddMeMessage(String roomName, String userName){

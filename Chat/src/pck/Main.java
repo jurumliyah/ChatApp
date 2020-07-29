@@ -1,19 +1,26 @@
 package pck;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -21,9 +28,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
  
-	public class Main extends Application {
+	public class Main extends Application implements Runnable {
 		
 		static TextField namefield = new TextField();
         static TextField roomfield = new TextField();
@@ -40,12 +49,14 @@ import java.util.ArrayList;
         static String roomName;
         static String userName;
         
+        
         static int port = 4909;
         static String adress = "localhost";
    
 	    public static void main(String[] args) {	
 	    	establishConnection();
     		window.setRooms(rooms);
+    		//window.button.setOnAction(handleSend());
     		
 	    	System.out.println("prva linija");
 	        Application.launch(Main.class, args);
@@ -53,16 +64,15 @@ import java.util.ArrayList;
 	    
 	    public void start(Stage primaryStage) {
 	    	root = createWindow();
-	    	scene = new Scene(root, 400,400);
-	        
-	        button.setOnAction( e -> {handle();});
-	        
+	    	scene = new Scene(root, 400,400);	        
 	        primaryStage.setScene(scene);
 	        primaryStage.show();
 	    
 	    }
 	    
 	    static GridPane createWindow() {
+	        button.setOnAction( e -> {handle();});
+	       
 	    	GridPane root = new GridPane();
 	        Label label = new Label("W E L L C O M E");
 	        Label namelabel = new Label("Name: ");
@@ -114,17 +124,20 @@ import java.util.ArrayList;
 	    	
 	    }
 	    
-	    void handle() {
+	    static void handle() {
 	    
         	String newUser = namefield.getText();
         	String roomName = (String) choicebox.getValue();
         	if (newUser.length() == 0) {
         		String name = getRandomName();
+        		userName = name;
         		System.out.println("new user name: " + name);
     			//button.getScene().getWindow().hide();
         		addMeToServer(roomName,newUser);
         		getUpdate();
+        		//startListening();
         		//window.scrollpane2.setContent(new Text("blabla"));
+        		
     	        createChatWindow();  
 
     	        }
@@ -132,15 +145,17 @@ import java.util.ArrayList;
         		boolean test = checkUser (newUser);
             	if (!test) {
         			//button.getScene().getWindow().hide();
+            		userName = newUser;
             		addMeToServer(roomName,newUser);
             		getUpdate();
+            		//startListening();
             		createChatWindow();
             		    	        	}
             	else { System.out.println("Enter Another name"); new Popup();}
         		}
         	}
 	    
-	    String getRandomName() {
+	    static String getRandomName() {
 	    	String name;
 	    	for (int i = 0; ; i++)
 	    		if (!checkUser(name="user" + i))
@@ -149,10 +164,48 @@ import java.util.ArrayList;
 	    }
 	    
 
-	    void createChatWindow() {
+	    static void createChatWindow() {
 	    	//scene.setRoot(root2);
+	    	 window.button.setOnAction((event)->{
+			        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
+					try {
+						System.out.println("Client: myMessage is: " + msg.text + " .");
+						out.writeObject(msg);
+						out.reset();
+						//System.out.println("Button clicked");
+						UpdateMessage msg2 = (UpdateMessage) in.readObject();
+						System.out.println("Client: I received: " + msg2.text + " .");
+
+						window.chatLog.addText(msg2.text);
+						window.text = window.chatLog.text;
+						window.settextflow(msg2.text);
+						window.scrollpane.setContent(window.textflow);
+						window.type.setText("");									
+
+					} catch (IOException | ClassNotFoundException e) {e.printStackTrace();}
+		        	
+		           });
+	    	 window.type.setOnAction((event)->{
+			        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
+					try {
+						System.out.println("Client: myMessage is: " + msg.text + " .");
+						out.writeObject(msg);
+						out.reset();
+						//System.out.println("Button clicked");
+						UpdateMessage msg2 = (UpdateMessage) in.readObject();
+						System.out.println("Client: I received: " + msg2.text + " .");
+
+						window.chatLog.addText(msg2.text);
+						window.text = window.chatLog.text;
+						window.settextflow(msg2.text);
+						window.scrollpane.setContent(window.textflow);
+						window.type.setText("");						
+
+					} catch (IOException | ClassNotFoundException e) {e.printStackTrace();}
+		        	
+		           });
 	    	Stage stage = new Stage();
-			stage.setScene(new Scene(root2,400,400));
+			stage.setScene(new Scene(root2,600,400));
 			stage.show();
 			
 	    }
@@ -177,6 +230,7 @@ import java.util.ArrayList;
 				in = new ObjectInputStream(socket.getInputStream());
 				out = new ObjectOutputStream(socket.getOutputStream());	
 				rooms = (ArrayList<Room>)in.readObject();
+				System.out.println("Client: establishConnect OK");
 			
 			} catch (UnknownHostException e) {e.printStackTrace();
 			} catch (IOException e) {e.printStackTrace();
@@ -218,8 +272,7 @@ import java.util.ArrayList;
 			
 		}
 		
-		
-		public void getUpdate() {
+		public static void getUpdate() {
 			UpdateUser msg;
 			try {
 				msg = (UpdateUser) in.readObject();
@@ -245,5 +298,43 @@ import java.util.ArrayList;
 	
 	}
 		*/
+		
+		static void startListening() {
+			Thread.currentThread().start();
+			
+		}
+		
+		static String setMsgText(String str) {
+			String string;
+			string = getTime() + str;
+			return string;
+		}
+		static String getTime() {
+			LocalDateTime time = LocalDateTime.now();
+		    DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+		    String string = format.format(time);
+		    return string;		
+		}
 
+@Override
+public void run() {
+	// TODO Auto-generated method stub
+	Message msg;
+	try {
+		out.writeObject(new ChatLog(""));
+		out.reset();
+	} catch (IOException e1) {e1.printStackTrace();
+	}
+	try {
+		while ( ( msg = (Message) in.readObject()) != null) {
+			if (msg instanceof UpdateUser) {
+				updateUser((UpdateUser) msg);
+				//window.scrollpane2.setContent(new Text(((UpdateUser) msg).userName));
+			}
+		}
+	} catch (ClassNotFoundException e) {e.printStackTrace();
+	} catch (IOException e) {e.printStackTrace();
+	}
+	
+}
 }
