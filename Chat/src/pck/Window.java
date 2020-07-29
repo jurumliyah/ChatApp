@@ -54,9 +54,9 @@ public class Window {
 	TextFlow textflow;
 	
 	Window(){
-		 redcode = "#3d0100;";
-		 greencode = "#276932;";
-		 bluecode = "#282b4d;";
+		 redcode = "#ffebeb;";
+		 greencode = "#e1fceb;";
+		 bluecode = "#ebe6ff;";
 		 defaultcolorcode = "#e6e6e6;"; 
 		 rooms = new ArrayList<Room>();
 		 window = new BorderPane();
@@ -82,9 +82,10 @@ public class Window {
 		center.getColumnConstraints().add(new GridCol(1));
 		center.getRowConstraints().add(new GridRow(1));
 		center.add(scrollpane, 0, 0);
+		center.setMinWidth(300);
 
 		
-		//scrollpane2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		scrollpane2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		//scrollpane2.setMaxWidth(120);
 		scrollpane3.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
@@ -94,7 +95,7 @@ public class Window {
 		right.getColumnConstraints().add(new GridCol(1));
 		right.add(scrollpane2, 0, 0);
 		right.add(scrollpane3, 0, 1);
-		right.setMinWidth(10);
+		//right.setMinWidth(10);
 		right.setMaxWidth(200);
 		right.setPrefWidth(200);
 	
@@ -109,12 +110,12 @@ public class Window {
 		bottom.add(button, 1, 0);
 		//bottom.setAlignment(Pos.CENTER);
 		bottom.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-		bottom.setPadding(new Insets(0,120,0,0));
+		bottom.setPadding(new Insets(0,200,0,0));
         
-		Button red = new Button("click");
-		Button blue = new Button("click");
-		Button green = new Button("click");
-		Button defaultcolor = new Button("click");
+		Button red = new Button();
+		Button blue = new Button();
+		Button green = new Button();
+		Button defaultcolor = new Button();
 		red.setStyle  ("-fx-background-color :" + redcode);
 		blue.setStyle("-fx-background-color :" + bluecode);
 		green.setStyle("-fx-background-color :" + greencode);
@@ -151,7 +152,7 @@ public class Window {
 		colors.add(blue, 1, 0);
         colors.add(red, 2, 0);
         colors.add(green, 3, 0);
-        colors.setPadding(new Insets(0,120,0,0));
+        colors.setPadding(new Insets(0,200,0,0));
 		
 		//for (int i = 0; i<2; i++) {right.getRowConstraints().add(new GridRow(2));}
         
