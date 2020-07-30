@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
@@ -33,6 +34,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Window {
+	String currentroom;
 	String redcode;
 	String greencode;
 	String bluecode;
@@ -46,12 +48,15 @@ public class Window {
 	Text text;
 	ScrollPane scrollpane;
 	VBox scrollpane2;
-	ScrollPane scrollpane3;
-	ListView<String> list;
+	VBox scrollpane3;
+	ListView<String> listViewRooms;
+	ListView<String> listViewUsers;
 	ChatLog chatLog = new ChatLog("");
 	Button button;
 	TextField type;
 	TextFlow textflow;
+	Label usersLabel;
+	Label roomsLabel;
 	
 	Window(){
 		 redcode = "#ffebeb;";
@@ -68,11 +73,16 @@ public class Window {
 		 text = new Text();
 		 scrollpane = new ScrollPane();
 		 scrollpane2 = new VBox();
-		 scrollpane3 = new ScrollPane();
-         list = new ListView<String>();
-         list.setOrientation(Orientation.VERTICAL);
+		 scrollpane3 = new VBox();
+         listViewRooms = new ListView<String>();
+         listViewRooms.setOrientation(Orientation.VERTICAL);
+         listViewUsers = new ListView<String>();
+         listViewUsers.setOrientation(Orientation.VERTICAL);
          button = new Button("Send");
  		 type = new TextField();
+ 		 roomsLabel = new Label("Rooms:");
+ 		 usersLabel = new Label("Users:");
+ 		 
  		 
          }
 	
@@ -88,6 +98,10 @@ public class Window {
 		scrollpane2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		//scrollpane2.setMaxWidth(120);
 		scrollpane3.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+    	this.scrollpane2.getChildren().add(this.roomsLabel);	
+    	//this.scrollpane2.setc;	
+
+
 
 		
 		right.getRowConstraints().add(new GridRow(0,35));
@@ -157,12 +171,14 @@ public class Window {
 		//for (int i = 0; i<2; i++) {right.getRowConstraints().add(new GridRow(2));}
         
         
-        list.setOnMouseClicked((MouseEvent event) -> {
+        listViewRooms.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2){
-                System.out.println(list.getSelectionModel().getSelectedItem());
+                System.out.println(listViewRooms.getSelectionModel().getSelectedItem());
             }
         });
-    
+		 this.scrollpane3.getChildren().add(this.usersLabel);
+		 this.scrollpane3.getChildren().add(this.listViewUsers);
+
 	     
 		window.setTop(colors);
 		window.setCenter(center);
@@ -171,10 +187,18 @@ public class Window {
 
 		return window;
 	}
-	
+	public void setTextFlowJoined(String str) {
+		Text txt = new Text();
+		txt.setText(str);
+		txt.setFill(javafx.scene.paint.Color.GREEN);
+		txt.setFont(new Font(11));
+		this.textflow.getChildren().addAll(txt);
+	    this.textflow.getChildren().add(new Text(System.lineSeparator()));
+		
+	}
 	public void settextflow(String text) {
 		String time = text.substring(0, 17);
-		System.out.println(time);
+		//System.out.println(time);
 		Text colorfultime = new Text();
 		colorfultime.setText(time);
 		colorfultime.setFill(javafx.scene.paint.Color.CRIMSON);
@@ -198,16 +222,39 @@ public class Window {
 	public void setRooms(ArrayList<Room> rooms) {
 		this.rooms = rooms;
     		for (Room r : rooms) {
-    			this.list.getItems().add(r.roomName);
+    			this.listViewRooms.getItems().add(r.roomName);
     		}	
-		this.scrollpane2.getChildren().add(this.list);
-		
+		this.scrollpane2.getChildren().add(this.listViewRooms);	
 	}
+	public void setListViewUser(ArrayList<Room> rooms) {
+		this.rooms = rooms;
+    		for (Room r : rooms) {
+    			this.listViewRooms.getItems().add(r.roomName);
+    		}	
+    		
+		this.scrollpane2.getChildren().add(this.listViewRooms);	
+	}
+
 
 	 public void addUser(String roomName, String userName) {
 		 for (Room r : rooms) {
 			 if (r.roomName.equals(roomName)) {
+				 r.addUser(userName);
 			 }
 		 }
+	 }
+	 public void showUsersScrollPane(String userName) {
+		 Room help = new Room("");
+		 for (Room r : rooms) {
+			 if (r.searchUser(userName)) {help = r; break;}
+		 }
+		 for (String user : help.userslist) {
+			 this.listViewUsers.getItems().add(user);
+			 
+		 }
+
+
+		// System.out.println("showusersscrolpane metoda");
+		 
 	 }
 }

@@ -2,27 +2,19 @@ package pck;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -43,23 +35,37 @@ import java.util.ArrayList;
         static Scene scene;
         static Window window = new Window();
         static BorderPane root2 = window.createWindow();
-        static Socket socket;
-        static ObjectInputStream in;
-        static ObjectOutputStream out;
+        static Socket socket = null;
+        static ObjectInputStream in = null;
+        static ObjectOutputStream out = null;
         static String roomName;
         static String userName;
+        static Stream stream;
         
         
         static int port = 4909;
         static String adress = "localhost";
    
-	    public static void main(String[] args) {	
-	    	establishConnection();
-    		window.setRooms(rooms);
-    		//window.button.setOnAction(handleSend());
-    		
-	    	System.out.println("prva linija");
-	        Application.launch(Main.class, args);
+	    public static void main(String[] args) {
+	    	stream = new Stream(adress, port);
+			ArrayList<Room> helplist;
+			try {
+				helplist = (ArrayList<Room>)stream.in.readObject();
+				{synchronized (rooms) {rooms = helplist;}}
+				window.setRooms(rooms);
+				System.out.println("Client: establishConnect OK");
+
+			} catch (ClassNotFoundException | IOException e) {e.printStackTrace();
+			}
+			
+	    	//establishConnection();
+			//window.setRooms(rooms);
+	       launch(args);
+
+   	       /* Main runnable=new Main();
+	        Thread t1 =new Thread(runnable);
+	        t1.start();
+	        */
 	    }
 	    
 	    public void start(Stage primaryStage) {
@@ -83,7 +89,7 @@ import java.util.ArrayList;
 	        	choicebox.getItems().add(room.roomName);
 	        }
 	        choicebox.setValue(rooms.get(0).roomName);
-	        choicebox.setTooltip(new Tooltip("Select the language"));
+	        choicebox.setTooltip(new Tooltip("Select the room"));
 
 	        
 	        root.setAlignment(Pos.CENTER);
@@ -131,26 +137,30 @@ import java.util.ArrayList;
         	if (newUser.length() == 0) {
         		newUser = getRandomName();
         		userName = newUser;
-        		System.out.println("new user name: " + newUser);
-    			//button.getScene().getWindow().hide();
+    			button.getScene().getWindow().hide();
         		addMeToServer(roomName,newUser);
-        		getUpdate();
+        		//getUpdate();
         		//startListening();
-        		//window.scrollpane2.setContent(new Text("blabla"));
-        		
-    	        createChatWindow();  
-
+        		//window.scrollpane2.setContent(new Text("blabla"));	
+    	        createChatWindow();
+    	        Main runnable=new Main();
+    	        Thread t1 =new Thread(runnable);
+    	        t1.start();
+    	        
     	        }
         	else {
         		boolean test = checkUser (newUser);
             	if (!test) {
-        			//button.getScene().getWindow().hide();
+        			button.getScene().getWindow().hide();
             		userName = newUser;
             		addMeToServer(roomName,newUser);
-            		getUpdate();
+            		//getUpdate();
             		//startListening();
             		createChatWindow();
-            		    	        	}
+            		Main runnable=new Main();
+        	        Thread t1 =new Thread(runnable);
+        	        t1.start();
+            		 }
             	else { System.out.println("Enter Another name"); new Popup();}
         		}
         	}
@@ -169,41 +179,25 @@ import java.util.ArrayList;
 	    	 window.button.setOnAction((event)->{
 			        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
 					try {
+						System.out.println("Button clicked");
 						System.out.println("Client: myMessage is: " + msg.text + " .");
-						out.writeObject(msg);
-						out.reset();
-						//System.out.println("Button clicked");
-						UpdateMessage msg2 = (UpdateMessage) in.readObject();
-						System.out.println("Client: I received: " + msg2.text + " .");
-
-						window.chatLog.addText(msg2.text);
-						window.text = window.chatLog.text;
-						window.settextflow(msg2.text);
-						window.scrollpane.setContent(window.textflow);
-						window.type.setText("");									
-
-					} catch (IOException | ClassNotFoundException e) {e.printStackTrace();}
+						stream.out.writeObject(msg);
+						stream.out.reset();
+					} catch (IOException e) {e.printStackTrace();}
 		        	
 		           });
 	    	 window.type.setOnAction((event)->{
 			        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
 					try {
+						System.out.println("Button clicked");						
 						System.out.println("Client: myMessage is: " + msg.text + " .");
-						out.writeObject(msg);
-						out.reset();
-						//System.out.println("Button clicked");
-						UpdateMessage msg2 = (UpdateMessage) in.readObject();
-						System.out.println("Client: I received: " + msg2.text + " .");
-
-						window.chatLog.addText(msg2.text);
-						window.text = window.chatLog.text;
-						window.settextflow(msg2.text);
-						window.scrollpane.setContent(window.textflow);
-						window.type.setText("");						
-
-					} catch (IOException | ClassNotFoundException e) {e.printStackTrace();}
+						stream.out.writeObject(msg);
+						stream.out.reset();
+						
+					} catch (IOException e) {e.printStackTrace();}
 		        	
 		           });
+
 	    	Stage stage = new Stage();
 			stage.setScene(new Scene(root2,600,400));
 			stage.show();
@@ -214,9 +208,9 @@ import java.util.ArrayList;
 		   CheckUserMessage msg = new CheckUserMessage(name);
 		   boolean test= false;
 		   try {
-			out.writeObject(msg);
-			out.reset();
-			boolean help  = (boolean)in.readObject();
+			stream.out.writeObject(msg);
+			stream.out.reset();
+			boolean help  = (boolean)stream.in.readObject();
 			test = help;
 			
 		   } catch (IOException e) {e.printStackTrace();
@@ -227,9 +221,11 @@ import java.util.ArrayList;
 	   static void establishConnection() {
 			try {
 				socket = new Socket(adress,port);
-				in = new ObjectInputStream(socket.getInputStream());
 				out = new ObjectOutputStream(socket.getOutputStream());	
-				rooms = (ArrayList<Room>)in.readObject();
+				in = new ObjectInputStream(socket.getInputStream());
+				ArrayList<Room> helplist = (ArrayList<Room>)in.readObject();
+				{synchronized (rooms) {rooms = helplist;}}
+				
 				System.out.println("Client: establishConnect OK");
 			
 			} catch (UnknownHostException e) {e.printStackTrace();
@@ -254,8 +250,11 @@ import java.util.ArrayList;
 		static void addMeToServer(String roomName, String newUser) {
 			AddMeMessage msg = new AddMeMessage(roomName, newUser);
 			try {
-				out.writeObject(msg);
-				out.reset();
+				stream.out.writeObject(msg);
+				stream.out.reset();
+				//   Excepting two Objects to be sent from server as of now:
+				//   1.UpdateUser Message 2. UserJoined Message
+				
 			} catch (IOException e) {e.printStackTrace();
 			}
 		}
@@ -264,7 +263,7 @@ import java.util.ArrayList;
 			String userName = msg.userName;
 			String roomName = msg.roomName;
 			
-			for (Room room : rooms) {
+			for (Room room : window.rooms) {
 				if (room.roomName.contentEquals(roomName)) {
 					room.addUser(userName);
 				}
@@ -275,35 +274,22 @@ import java.util.ArrayList;
 		public static void getUpdate() {
 			UpdateUser msg;
 			try {
-				msg = (UpdateUser) in.readObject();
-				window.addUser(msg.roomName, msg.userName);
+				msg = (UpdateUser) stream.in.readObject();
+				Platform.runLater(()-> {
+					window.addUser(msg.roomName, msg.userName);
+					window.showUsersScrollPane(msg.userName);	 } );
+				
+				UserJoinedMessage msg2= (UserJoinedMessage) stream.in.readObject();
+				Platform.runLater(()-> {
+					window.setTextFlowJoined(msg2.text);
+					window.scrollpane.setContent(window.textflow);	 } );
 			} catch (IOException | ClassNotFoundException e) {e.printStackTrace();
 			}
 		}
-/*
-		@Override
-		public void run() {			 
-				 Message msg;
-				try {
-					while ( ( msg = (Message) in.readObject()) != null) {
-						if (msg instanceof UpdateUser) {
-							updateUser((UpdateUser) msg);
-							window.scrollpane2.setContent(new Text(((UpdateUser) msg).userName));
-				
-						}
-					}
-				} catch (ClassNotFoundException e) {e.printStackTrace();
-				} catch (IOException e) {e.printStackTrace();
-				}
-	
-	}
-		*/
 		
-		static void startListening() {
-			Thread.currentThread().start();
-			
+		static String setFirstMessage(String userName) {
+			return getTime() + " : " + userName + " joined Chat";
 		}
-		
 		static String setMsgText(String str) {
 			String string;
 			string = getTime() + str;
@@ -316,25 +302,67 @@ import java.util.ArrayList;
 		    return string;		
 		}
 
-@Override
-public void run() {
-	// TODO Auto-generated method stub
-	Message msg;
-	try {
-		out.writeObject(new ChatLog(""));
-		out.reset();
-	} catch (IOException e1) {e1.printStackTrace();
-	}
-	try {
-		while ( ( msg = (Message) in.readObject()) != null) {
-			if (msg instanceof UpdateUser) {
-				updateUser((UpdateUser) msg);
-				//window.scrollpane2.setContent(new Text(((UpdateUser) msg).userName));
+		public void run() {
+		/*	
+			try {
+				socket = new Socket(adress,port);
+				out = new ObjectOutputStream(socket.getOutputStream());	
+				in = new ObjectInputStream(socket.getInputStream());
+				ArrayList<Room> helplist = (ArrayList<Room>)in.readObject();
+				{synchronized (rooms) {rooms = helplist;}}
+				
+				System.out.println("Client: establishConnect OK");
+			
+			} catch (UnknownHostException e) {e.printStackTrace();
+			} catch (IOException e) {e.printStackTrace();
+			} catch (ClassNotFoundException e) {e.printStackTrace();
 			}
-		}
-	} catch (ClassNotFoundException e) {e.printStackTrace();
-	} catch (IOException e) {e.printStackTrace();
-	}
 	
-}
+			 Platform.runLater(()-> {
+		    		window.setRooms(rooms);} );
+		*/
+			//Application.launch(Main.class);
+			
+			Message msg;
+			try {
+				while (( (msg = (Message) stream.in.readObject()) != null) && (!Thread.currentThread().isInterrupted())){
+					System.out.println("Testing in.redobject() in Client:");
+					if (msg instanceof UpdateUser) {
+						System.out.println("Client: in RUN: instanceof UpdateMessage:");
+		
+						UpdateUser help = (UpdateUser) msg;
+						Platform.runLater(()-> {
+							window.addUser(help.roomName, help.userName);
+							window.showUsersScrollPane(help.userName);	 } );
+       					
+					}
+					if (msg instanceof UserJoinedMessage) {
+						System.out.println("Client: in RUN: instanceof UserJoinedMessage:");
+					
+						UserJoinedMessage help= (UserJoinedMessage) msg;
+						Platform.runLater(()-> {
+							window.setTextFlowJoined(help.text);
+							window.scrollpane.setContent(window.textflow);	 } );
+       					
+					}
+					if (msg instanceof UpdateMessage ) {
+						{synchronized(this) {
+							
+							System.out.println("Client: in RUN: instanceofUpdateMessage:");
+							UpdateMessage help = (UpdateMessage) msg;
+							System.out.println("Client: I received: " + help.text + " .");
+				            Platform.runLater(()-> {
+								window.chatLog.addText(help.text);
+								window.text = window.chatLog.text;
+								window.settextflow(help.text);
+								window.scrollpane.setContent(window.textflow);
+								window.type.setText("");	 } );
+						}}
+		
+					}
+				}
+			} catch (ClassNotFoundException | IOException e) {e.printStackTrace();
+			}
+			
+		}
 }
