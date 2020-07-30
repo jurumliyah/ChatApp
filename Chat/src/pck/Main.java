@@ -56,15 +56,7 @@ import java.util.ArrayList;
 
 			} catch (ClassNotFoundException | IOException e) {e.printStackTrace();
 			}
-			
-	    	//establishConnection();
-			//window.setRooms(rooms);
 	       launch(args);
-
-   	       /* Main runnable=new Main();
-	        Thread t1 =new Thread(runnable);
-	        t1.start();
-	        */
 	    }
 	    
 	    public void start(Stage primaryStage) {
@@ -267,25 +259,6 @@ import java.util.ArrayList;
 		}
 
 		public void run() {
-		/*	
-			try {
-				socket = new Socket(adress,port);
-				out = new ObjectOutputStream(socket.getOutputStream());	
-				in = new ObjectInputStream(socket.getInputStream());
-				ArrayList<Room> helplist = (ArrayList<Room>)in.readObject();
-				{synchronized (rooms) {rooms = helplist;}}
-				
-				System.out.println("Client: establishConnect OK");
-			
-			} catch (UnknownHostException e) {e.printStackTrace();
-			} catch (IOException e) {e.printStackTrace();
-			} catch (ClassNotFoundException e) {e.printStackTrace();
-			}
-	
-			 Platform.runLater(()-> {
-		    		window.setRooms(rooms);} );
-		*/
-			//Application.launch(Main.class);
 			
 			Message msg;
 			try {
