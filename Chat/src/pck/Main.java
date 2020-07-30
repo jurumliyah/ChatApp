@@ -189,7 +189,7 @@ import java.util.ArrayList;
 	    	 window.type.setOnAction((event)->{
 			        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
 					try {
-						System.out.println("Button clicked");						
+						//System.out.println("Button clicked");						
 						System.out.println("Client: myMessage is: " + msg.text + " .");
 						stream.out.writeObject(msg);
 						stream.out.reset();
@@ -326,25 +326,30 @@ import java.util.ArrayList;
 			Message msg;
 			try {
 				while (( (msg = (Message) stream.in.readObject()) != null) && (!Thread.currentThread().isInterrupted())){
-					System.out.println("Testing in.redobject() in Client:");
+					//System.out.println("Testing in.redobject() in Client:");
 					if (msg instanceof UpdateUser) {
-						System.out.println("Client: in RUN: instanceof UpdateMessage:");
+						{synchronized(this) {
+
+						System.out.println("Client: in RUN: instanceof UpdateUSER   :");
 		
 						UpdateUser help = (UpdateUser) msg;
 						Platform.runLater(()-> {
 							window.addUser(help.roomName, help.userName);
 							window.showUsersScrollPane(help.userName);	 } );
-       					
-					}
+						}
+					}}
 					if (msg instanceof UserJoinedMessage) {
+						{synchronized(this) {
+
 						System.out.println("Client: in RUN: instanceof UserJoinedMessage:");
 					
 						UserJoinedMessage help= (UserJoinedMessage) msg;
 						Platform.runLater(()-> {
 							window.setTextFlowJoined(help.text);
-							window.scrollpane.setContent(window.textflow);	 } );
-       					
-					}
+							window.scrollpane.setContent(window.textflow);
+							window.scrollpane.setVvalue(1.0);  } );
+						}
+					}}
 					if (msg instanceof UpdateMessage ) {
 						{synchronized(this) {
 							
@@ -356,7 +361,8 @@ import java.util.ArrayList;
 								window.text = window.chatLog.text;
 								window.settextflow(help.text);
 								window.scrollpane.setContent(window.textflow);
-								window.type.setText("");	 } );
+								window.type.setText("");
+								window.scrollpane.setVvalue(1.0); } );
 						}}
 		
 					}

@@ -17,7 +17,7 @@ public class Room implements Serializable{
 	}
 	void addUser(String userName) {
 		this.userslist.add(userName);
-		System.out.println("Adding user: " + userName + " to Room: " + roomName);
+		System.out.println("Adding user: " + userName + " to Room: " + roomName + Thread.currentThread().getName());
 		for (String s : userslist) {
 			System.out.println("Users: " + s + " in Room: " + roomName);
 

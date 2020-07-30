@@ -35,27 +35,94 @@ public class ChatServer extends Thread {
 		
 		Thread serverThread = new ChatServer();
 		serverThread.start();
-
 	}
+	
+	 static void updateUser(String roomName, String userName) {
+
+		UpdateUser msg = new UpdateUser(roomName, userName) ; 
+		for (ClientThread ct : clientThreads) { 				
+			if(roomName.equals(ct.myRoomName)) { 	
+				try { 				
+					System.out.println("SERVER: broadcast UPDATE USER METHOD: CT THREAD: " + ct.getName()  + " :  ROOM NAME / USERNAME: " + ct.myRoomName + " / " + ct.myName);
+					ct.stream.out.writeObject(msg); 						
+					ct.stream.out.reset(); }
+				catch (IOException e) {e.printStackTrace();}
+				}
+			}
+			}
+		
+		static void getThreadRooms() {
+			for (ClientThread ct : clientThreads) {
+				System.out.println("Client THREAD: " + ct.getName() + "; ROOM NAME: " + ct.myRoomName);
+			}
+		}
+		static void broadcastNewUser(String roomName, String userName) {
+			UserJoinedMessage msg = new UserJoinedMessage(getTime() + " : " + userName + "joined Chat"); ;
+			for (ClientThread ct : clientThreads) { 				
+				if(roomName.equals(ct.myRoomName)) { 	
+					try { 	
+						System.out.println("SERVER: broadcast NEW USER METHOD: ClientTHREAD NAME:" + ct.getName() + ": THIS THREAD ROOM NAME / USERNAME: " + ct.myRoomName + " / " + ct.myName);
+						ct.stream.out.writeObject(msg); 						
+						ct.stream.out.reset(); }
+					catch (IOException e) {e.printStackTrace();}
+					}
+				}
+		}
+		
+		static void broadcastMessage(UpdateMessage msg, String roomName) {
+			for (ClientThread ct : clientThreads) { 				
+				if(roomName.equals(ct.myRoomName)) { 	
+					try { 		
+						System.out.println("SERVER: broadcast UPDATE MSG METHOD: ClientTHREAD NAME:" + ct.getName() + " THIS THREAD ROOM NAME / USERNAME: "  + ct.myRoomName + " " + ct.myName);
+						ct.stream.out.writeObject(msg); 						
+						ct.stream.out.reset(); }
+					catch (IOException e) {e.printStackTrace();}
+					}
+				}
+		}
+		
+		
+		static String getTime() {
+			String str = null;
+			LocalDateTime time = LocalDateTime.now();
+		    DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+		    str = format.format(time);
+		    return str;		
+		}
+	
 	@Override
 	public void run() {
-		
 		try {
 			server = new ServerSocket(port);
-			while(true) {
+		} catch (IOException e1) {e1.printStackTrace();}
+
+		while(true) {
+			try {
 				socket = server.accept();
-				Thread clientThread = new ClientThread();
+				Thread clientThread = new ClientThread(socket);
 				clientThreads.add((ClientThread) clientThread);
-				clientThread.start();								
+				clientThread.start();
+				} catch (IOException e) {e.printStackTrace();}
+			
+					
 			}					
-		} catch (IOException e) {e.printStackTrace(); System.out.println("odbijeno");}
 	}
 	
 	static class ClientThread extends Thread{
-		String myName;
-		String myRoomName;
-		static ObjectOutputStream out;
-		static ObjectInputStream   in;
+		static String myName;
+		static String myRoomName;
+		Stream stream;
+		
+		ClientThread (Socket socket){
+			stream = new Stream(socket);
+		}
+		
+		public String getmyName() {
+			return this.myName;
+		}
+		public String getmyRoomName() {
+			return this.myRoomName;
+		}
 
 		static boolean checkUser(String name) {
 			boolean test = false;
@@ -79,15 +146,19 @@ public class ChatServer extends Thread {
 			return name;
 		}
 		
-		static void addUser(AddMeMessage msg) {
-			for (Room room : rooms) {
-				//if (getRoomName(msg.userName).equals(msg.roomName))
-				if (room.roomName.equals(msg.roomName)) {
-					room.addUser(msg.userName);
-					System.out.println("Server: test: addUser to Room " + getRoomName(msg.userName));
+		 void addUser(AddMeMessage msg) {
+			{synchronized(this){
+				for (Room room : rooms) {
+					//if (getRoomName(msg.userName).equals(msg.roomName))
+					if (room.roomName.equals(msg.roomName)) {
+						room.addUser(msg.userName);
+						System.out.println("SERVER: ADDING USER to Room " + getRoomName(msg.userName));
 
+
+					}
 				}
-			}
+			}}
+
 		}
 		
 		/*
@@ -101,72 +172,37 @@ public class ChatServer extends Thread {
 			}
 		}
 		*/
-	 static void updateUser(String userName) {
 
-		UpdateUser msg = new UpdateUser(getRoomName(userName), userName) ; 
-		for (ClientThread ct : clientThreads) { 				
-			if(ct.myRoomName.equals(getRoomName(userName))) { 	
-				System.out.println("Server: test updateUser method: Room Name: " + getRoomName(userName));
-				try { 						
-					ct.out.writeObject(msg); 						
-					ct.out.reset(); }
-				catch (IOException e) {e.printStackTrace();}
-				}
-			}
-			}
-		
-		
-		static void broadcastNewUser(String userName) {
-			UserJoinedMessage msg = new UserJoinedMessage(getTime() + " : " + userName + "joined Chat"); ;
-			for (ClientThread ct : clientThreads) { 				
-				if(ct.myRoomName.equals(getRoomName(userName))) { 					
-					try { 						
-						ct.out.writeObject(msg); 						
-						ct.out.reset(); }
-					catch (IOException e) {e.printStackTrace();}
-					}
-				}
-		}
-		static String getTime() {
-			String str = null;
-			LocalDateTime time = LocalDateTime.now();
-		    DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-		    str = format.format(time);
-		    return str;		
-		}
+
 		
 		
 		public void run() {
 			try {
-				out = new ObjectOutputStream(socket.getOutputStream());
-				in = new ObjectInputStream(socket.getInputStream());
-
-				out.writeObject(rooms);
-				out.reset();
-				
+				stream.out.writeObject(rooms);
+				stream.out.reset();
 				
 				Message msg;
-				while (( (msg = (Message) in.readObject()) != null)&& (!Thread.currentThread().isInterrupted())){
+				while (( (msg = (Message) stream.in.readObject()) != null)&& (!Thread.currentThread().isInterrupted())){
 				if (msg instanceof CheckUserMessage) {
+					System.out.println("SERVER: check USER: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
 					String name = ((CheckUserMessage) msg).userName;
-					out.writeObject(checkUser(name));
-					out.reset();
+					stream.out.writeObject(checkUser(name));
+					stream.out.reset();
 				}
 				if (msg instanceof AddMeMessage ) {
-					
+					System.out.println("SERVER: instance ADD ME: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
 					myName = ((AddMeMessage)msg).userName;
-					System.out.println("(myName)  :  " + myName);
+					myRoomName = ((AddMeMessage)msg).roomName;
+					getThreadRooms();
 					addUser((AddMeMessage)msg);
-					myRoomName = getRoomName(myName);
-					System.out.println("getRoomName(myName)  :  " + getRoomName(myName));
-					updateUser(((AddMeMessage) msg).userName);
-					broadcastNewUser(((AddMeMessage) msg).userName);
+					updateUser(((AddMeMessage) msg).roomName, ((AddMeMessage)msg).userName);
+					broadcastNewUser(((AddMeMessage) msg).roomName, ((AddMeMessage)msg).userName);
 				}
 				if (msg instanceof UpdateMessage ) {
 					UpdateMessage help = (UpdateMessage)msg;
-					System.out.println("Server: instance of Update Message: " + help.text);
-					out.writeObject(help);
-					out.reset();
+					System.out.println("SERVER: instance UPDATE MSG: ClientTHREAD NAME: " + Thread.currentThread().getName() + "BROADCASTING: " + help.text + "///////////////////////////");
+					getThreadRooms();
+					broadcastMessage(help, myRoomName);					
 					//addUser((AddMeMessage)msg);
 					//updateUser(((AddMeMessage) msg).userName);
 				}
