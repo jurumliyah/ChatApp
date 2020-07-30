@@ -73,7 +73,8 @@ public class ChatServer extends Thread {
 			for (ClientThread ct : clientThreads) { 				
 				if(roomName.equals(ct.myRoomName)) { 	
 					try { 		
-						System.out.println("SERVER: broadcast UPDATE MSG METHOD: ClientTHREAD NAME:" + ct.getName() + " THIS THREAD ROOM NAME / USERNAME: "  + ct.myRoomName + " " + ct.myName);
+						System.out.println("SERVER : MSG : FROM METHOD ROOMNAME: " + roomName);
+						System.out.println("SERVER: MSG : ClientTHREAD NAME:" + ct.getName() + " ROOMNAME / USERNAME: "  + ct.myRoomName + " " + ct.myName);
 						ct.stream.out.writeObject(msg); 						
 						ct.stream.out.reset(); }
 					catch (IOException e) {e.printStackTrace();}
@@ -109,8 +110,8 @@ public class ChatServer extends Thread {
 	}
 	
 	static class ClientThread extends Thread{
-		static String myName;
-		static String myRoomName;
+	    String myName;
+		String myRoomName;
 		Stream stream;
 		
 		ClientThread (Socket socket){
@@ -134,17 +135,6 @@ public class ChatServer extends Thread {
 			return test;
 		}
 		
-		static String getRoomName (String userName) {
-			String name = null;
-			for (Room room : rooms) {
-				for (String user : room.userslist) {
-					if (user.equals(userName)) {
-						name = room.roomName;
-					}
-				}
-			}
-			return name;
-		}
 		
 		 void addUser(AddMeMessage msg) {
 			{synchronized(this){
@@ -152,7 +142,7 @@ public class ChatServer extends Thread {
 					//if (getRoomName(msg.userName).equals(msg.roomName))
 					if (room.roomName.equals(msg.roomName)) {
 						room.addUser(msg.userName);
-						System.out.println("SERVER: ADDING USER to Room " + getRoomName(msg.userName));
+						System.out.println("SERVER: ADDING USER to Room " + msg.roomName);
 
 
 					}
@@ -160,22 +150,7 @@ public class ChatServer extends Thread {
 			}}
 
 		}
-		
-		/*
-		static void updateUser(String userName) {
-			UpdateUser msg = new UpdateUser(getRoomName(userName), userName) ;
 			
-			try {
-				out.writeObject(msg);
-				out.reset();
-			} catch (IOException e) {e.printStackTrace();
-			}
-		}
-		*/
-
-
-		
-		
 		public void run() {
 			try {
 				stream.out.writeObject(rooms);
@@ -193,7 +168,6 @@ public class ChatServer extends Thread {
 					System.out.println("SERVER: instance ADD ME: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
 					myName = ((AddMeMessage)msg).userName;
 					myRoomName = ((AddMeMessage)msg).roomName;
-					getThreadRooms();
 					addUser((AddMeMessage)msg);
 					updateUser(((AddMeMessage) msg).roomName, ((AddMeMessage)msg).userName);
 					broadcastNewUser(((AddMeMessage) msg).roomName, ((AddMeMessage)msg).userName);
@@ -201,7 +175,6 @@ public class ChatServer extends Thread {
 				if (msg instanceof UpdateMessage ) {
 					UpdateMessage help = (UpdateMessage)msg;
 					System.out.println("SERVER: instance UPDATE MSG: ClientTHREAD NAME: " + Thread.currentThread().getName() + "BROADCASTING: " + help.text + "///////////////////////////");
-					getThreadRooms();
 					broadcastMessage(help, myRoomName);					
 					//addUser((AddMeMessage)msg);
 					//updateUser(((AddMeMessage) msg).userName);
