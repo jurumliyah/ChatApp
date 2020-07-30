@@ -57,7 +57,7 @@ public class ChatServer extends Thread {
 			}
 		}
 		static void broadcastNewUser(String roomName, String userName) {
-			UserJoinedMessage msg = new UserJoinedMessage(getTime() + " : " + userName + "joined Chat"); ;
+			UserJoinedMessage msg = new UserJoinedMessage(getTime() + " : " + userName + " joined Chat"); ;
 			for (ClientThread ct : clientThreads) { 				
 				if(roomName.equals(ct.myRoomName)) { 	
 					try { 	

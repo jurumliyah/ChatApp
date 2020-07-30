@@ -27,7 +27,6 @@ import java.util.ArrayList;
 	public class Main extends Application implements Runnable {
 		
 		static TextField namefield = new TextField();
-        static TextField roomfield = new TextField();
         static Button button =  new Button("Connect");
         static ChoiceBox choicebox = new ChoiceBox();
         static ArrayList<Room> rooms = new ArrayList();
@@ -78,6 +77,7 @@ import java.util.ArrayList;
 	    
 	    static GridPane createWindow() {
 	        button.setOnAction( e -> {handle();});
+	        namefield.setOnAction( e -> {handle();});
 	       
 	    	GridPane root = new GridPane();
 	        Label label = new Label("W E L L C O M E");
@@ -96,7 +96,6 @@ import java.util.ArrayList;
 	        root.setHgap(10);
 	        root.setVgap(30);
 	        namefield.setPromptText("enter name");
-	        roomfield.setPromptText("choose room");
 	        button.setAlignment(Pos.CENTER);
 	        label.setAlignment(Pos.CENTER);
 	        button.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -132,16 +131,12 @@ import java.util.ArrayList;
 	    
 	    static void handle() {
 	    
-        	String newUser = namefield.getText();
-        	String roomName = (String) choicebox.getValue();
-        	if (newUser.length() == 0) {
-        		newUser = getRandomName();
-        		userName = newUser;
+        	userName = namefield.getText();
+        	roomName = (String) choicebox.getValue();
+        	if (userName.length() == 0) {
+        		userName = getRandomName();
     			button.getScene().getWindow().hide();
-        		addMeToServer(roomName,newUser);
-        		//getUpdate();
-        		//startListening();
-        		//window.scrollpane2.setContent(new Text("blabla"));	
+        		addMeToServer(roomName, userName);
     	        createChatWindow();
     	        Main runnable=new Main();
     	        Thread t1 =new Thread(runnable);
@@ -149,13 +144,10 @@ import java.util.ArrayList;
     	        
     	        }
         	else {
-        		boolean test = checkUser (newUser);
+        		boolean test = checkUser (userName);
             	if (!test) {
         			button.getScene().getWindow().hide();
-            		userName = newUser;
-            		addMeToServer(roomName,newUser);
-            		//getUpdate();
-            		//startListening();
+            		addMeToServer(roomName, userName);
             		createChatWindow();
             		Main runnable=new Main();
         	        Thread t1 =new Thread(runnable);
@@ -256,34 +248,6 @@ import java.util.ArrayList;
 				//   1.UpdateUser Message 2. UserJoined Message
 				
 			} catch (IOException e) {e.printStackTrace();
-			}
-		}
-		static void updateUser(UpdateUser msg) {
-
-			String userName = msg.userName;
-			String roomName = msg.roomName;
-			
-			for (Room room : window.rooms) {
-				if (room.roomName.contentEquals(roomName)) {
-					room.addUser(userName);
-				}
-			}
-			
-		}
-		
-		public static void getUpdate() {
-			UpdateUser msg;
-			try {
-				msg = (UpdateUser) stream.in.readObject();
-				Platform.runLater(()-> {
-					window.addUser(msg.roomName, msg.userName);
-					window.showUsersScrollPane(msg.userName);	 } );
-				
-				UserJoinedMessage msg2= (UserJoinedMessage) stream.in.readObject();
-				Platform.runLater(()-> {
-					window.setTextFlowJoined(msg2.text);
-					window.scrollpane.setContent(window.textflow);	 } );
-			} catch (IOException | ClassNotFoundException e) {e.printStackTrace();
 			}
 		}
 		
