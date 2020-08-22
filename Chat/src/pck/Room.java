@@ -23,6 +23,11 @@ public class Room implements Serializable{
 
 		}
 	}
+	void removeUser(String userName) {
+		userslist.remove(userName);
+		System.out.println("Removing user: " + userName);
+		for (String a : userslist) System.out.println(a);
+	}
 	
 	void addAllUsers(String[] users) {
 		for (String u:users) {

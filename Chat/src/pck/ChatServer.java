@@ -57,7 +57,7 @@ public class ChatServer extends Thread {
 			}
 		}
 		static void broadcastNewUser(String roomName, String userName) {
-			UserJoinedMessage msg = new UserJoinedMessage(getTime() + " : " + userName + " joined Chat"); ;
+			UserJoinedMessage msg = new UserJoinedMessage(getTime() + " : " + userName + " joined Room " + roomName);
 			for (ClientThread ct : clientThreads) { 				
 				if(roomName.equals(ct.myRoomName)) { 	
 					try { 	
@@ -67,6 +67,16 @@ public class ChatServer extends Thread {
 					catch (IOException e) {e.printStackTrace();}
 					}
 				}
+		}
+		static void broadcastUserLeft(String userName, String oldRoom, String newRoom) {
+			UserLeftMessage msg = new UserLeftMessage (userName, oldRoom, getTime() + " : " + userName + " left Room " + oldRoom);
+			for (ClientThread ct : clientThreads) { 				
+				if(oldRoom.equals(ct.myRoomName)) {
+					try {
+						ct.stream.out.writeObject(msg);
+					} catch (IOException e) {e.printStackTrace();}
+				}
+			}
 		}
 		
 		static void broadcastMessage(UpdateMessage msg, String roomName) {
@@ -80,6 +90,14 @@ public class ChatServer extends Thread {
 					catch (IOException e) {e.printStackTrace();}
 					}
 				}
+		}
+		public static void sendRooms() {
+			for (ClientThread ct : clientThreads) { 				
+				try {
+					ct.stream.out.writeObject(new RoomsMessage(rooms));
+					ct.stream.out.reset();
+				} catch (IOException e) {e.printStackTrace();}
+			}
 		}
 		
 		
@@ -136,23 +154,31 @@ public class ChatServer extends Thread {
 		}
 		
 		
-		 void addUser(AddMeMessage msg) {
-			{synchronized(this){
+		 void addUser( String userName, String roomName) {
+			{synchronized(rooms){
 				for (Room room : rooms) {
 					//if (getRoomName(msg.userName).equals(msg.roomName))
-					if (room.roomName.equals(msg.roomName)) {
-						room.addUser(msg.userName);
-						System.out.println("SERVER: ADDING USER to Room " + msg.roomName);
-
-
+					if (room.roomName.equals(roomName)) {
+						room.addUser(userName);
+						System.out.println("SERVER: ADDING USER to Room " + roomName);
 					}
 				}
 			}}
 
 		}
+		 void removeUser(String userName, String roomName) {
+			 {synchronized(rooms){
+				 for (Room room : rooms) {
+					 if (room.roomName.equals(roomName)){
+						 room.removeUser(userName);
+					 }
+				 }
+			 }}		 
+		 }
 			
 		public void run() {
 			try {
+				//sendRooms();
 				stream.out.writeObject(rooms);
 				stream.out.reset();
 				
@@ -168,8 +194,9 @@ public class ChatServer extends Thread {
 					System.out.println("SERVER: instance ADD ME: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
 					myName = ((AddMeMessage)msg).userName;
 					myRoomName = ((AddMeMessage)msg).roomName;
-					addUser((AddMeMessage)msg);
-					updateUser(((AddMeMessage) msg).roomName, ((AddMeMessage)msg).userName);
+					addUser(myName, myRoomName);
+					sendRooms();
+					updateUser(myRoomName, myName);
 					broadcastNewUser(((AddMeMessage) msg).roomName, ((AddMeMessage)msg).userName);
 				}
 				if (msg instanceof UpdateMessage ) {
@@ -178,6 +205,27 @@ public class ChatServer extends Thread {
 					broadcastMessage(help, myRoomName);					
 					//addUser((AddMeMessage)msg);
 					//updateUser(((AddMeMessage) msg).userName);
+				}
+				
+				if (msg instanceof ChangeRoomMessage ) {
+					System.out.println("SERVER: instance CHANGE ROOM: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
+					String newRoom = ((ChangeRoomMessage)msg).newRoom;
+					String oldRoom = ((ChangeRoomMessage)msg).oldRoom;
+					String userName = ((ChangeRoomMessage)msg).userName;
+					
+					removeUser(userName, oldRoom);
+					myRoomName = newRoom;
+					addUser(userName, myRoomName);
+					sendRooms();
+					broadcastUserLeft(userName, oldRoom, newRoom);
+					//sendRooms();
+
+					//addUser(userName, myRoomName);
+					//sendRooms();
+				
+					updateUser(myRoomName, myName);
+					broadcastNewUser(myRoomName, myName);
+
 				}
 
 				}

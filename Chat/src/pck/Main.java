@@ -10,6 +10,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -50,7 +52,7 @@ import java.util.ArrayList;
 			ArrayList<Room> helplist;
 			try {
 				helplist = (ArrayList<Room>)stream.in.readObject();
-				{synchronized (rooms) {rooms = helplist;}}
+				rooms = helplist;
 				window.setRooms(rooms);
 				System.out.println("Client: establishConnect OK");
 
@@ -128,7 +130,11 @@ import java.util.ArrayList;
         	if (userName.length() == 0) {
         		userName = getRandomName();
     			button.getScene().getWindow().hide();
-        		addMeToServer(roomName, userName);
+        		addMeToRoom(roomName, userName);
+        		window.currentroom = roomName;
+        		window.currentuser = userName;
+        		window.setListViewRoomsCellColor();
+        		window.setListViewUsersCellColor();
     	        createChatWindow();
     	        Main runnable=new Main();
     	        Thread t1 =new Thread(runnable);
@@ -139,7 +145,11 @@ import java.util.ArrayList;
         		boolean test = checkUser (userName);
             	if (!test) {
         			button.getScene().getWindow().hide();
-            		addMeToServer(roomName, userName);
+            		addMeToRoom(roomName, userName);
+            		window.currentroom = roomName;
+            		window.currentuser = userName;
+            		window.setListViewRoomsCellColor();
+            		window.setListViewUsersCellColor();
             		createChatWindow();
             		Main runnable=new Main();
         	        Thread t1 =new Thread(runnable);
@@ -159,28 +169,58 @@ import java.util.ArrayList;
 	    
 
 	    static void createChatWindow() {
-	    	//scene.setRoot(root2);
 	    	 window.button.setOnAction((event)->{
-			        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
-					try {
-						System.out.println("Button clicked");
-						System.out.println("Client: myMessage is: " + msg.text + " .");
-						stream.out.writeObject(msg);
-						stream.out.reset();
-					} catch (IOException e) {e.printStackTrace();}
-		        	
-		           });
+	    		 String message;
+	    		 message = window.type.getText();
+	    		 if(isValid(message)) {  		 
+				        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
+						try {
+							System.out.println("Button clicked");
+							System.out.println("Client: myMessage is: " + msg.text + " .");
+							stream.out.writeObject(msg);
+							stream.out.reset();
+						} catch (IOException e) {e.printStackTrace();}
+	    		 	}
+				window.type.setText("");
+				
+	    		 });
+	    	 
 	    	 window.type.setOnAction((event)->{
-			        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
-					try {
-						//System.out.println("Button clicked");						
-						System.out.println("Client: myMessage is: " + msg.text + " .");
-						stream.out.writeObject(msg);
-						stream.out.reset();
-						
-					} catch (IOException e) {e.printStackTrace();}
-		        	
-		           });
+	    		 String message;
+	    		 message = window.type.getText();
+	    		 if(isValid(message)) {  		 
+				        UpdateMessage msg = new UpdateMessage( setMsgText(" : "+userName + " : " + window.type.getText()) );
+						try {
+							System.out.println("Button clicked");
+							System.out.println("Client: myMessage is: " + msg.text + " .");
+							stream.out.writeObject(msg);
+							stream.out.reset();
+						} catch (IOException e) {e.printStackTrace();}
+	    		 }
+				window.type.setText("");
+
+	    		 });
+	    	 
+	         window.listViewRooms.setOnMouseClicked((MouseEvent event) -> {
+	             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2){
+	                 System.out.println(window.listViewRooms.getSelectionModel().getSelectedItem());
+	                 // Create new PopUp for double click on Room List (Ask the user about changing Room) 
+	                 ChangeRoomWindow changeRoomWindow = new ChangeRoomWindow();
+	                 // If answer is NO -> close PopUp and do nothing else
+	                 changeRoomWindow.button2.setOnAction(e -> {changeRoomWindow.primaryStage.close();});
+	                 // If answer is YES -> close PopUp and implement changeroom methods
+	                 changeRoomWindow.button.setOnAction(e -> {
+	                 //window.changeRoom(window.listViewRooms.getSelectionModel().getSelectedItem());
+	                String newRoom = window.listViewRooms.getSelectionModel().getSelectedItem();
+	               	changeRoomRequest(window.listViewRooms.getSelectionModel().getSelectedItem());
+	               	//roomName = "";
+	               	changeRoomWindow.primaryStage.close();
+
+	               	});
+
+
+	             }
+	         });
 
 	    	Stage stage = new Stage();
 			stage.setScene(new Scene(root2,600,400));
@@ -231,7 +271,7 @@ import java.util.ArrayList;
 			return name;
 		}
 	   
-		static void addMeToServer(String roomName, String newUser) {
+		static void addMeToRoom(String roomName, String newUser) {
 			AddMeMessage msg = new AddMeMessage(roomName, newUser);
 			try {
 				stream.out.writeObject(msg);
@@ -257,13 +297,40 @@ import java.util.ArrayList;
 		    String string = format.format(time);
 		    return string;		
 		}
-
+		/*
+		 * isValid Method checks if message that User is sending is not empty
+		 * Parameter String message is value from Window.TextField
+		 */
+		static boolean isValid (String message) {
+			boolean test = false;;
+			if (message.length() == 0) {return false;}
+			
+			for (int i = 0; i < message.length(); i++) {
+				if (message.charAt(i) != ' ') {
+					test = true;
+				}
+			}
+			return test;
+		}
+		/*
+		 * Client sends sends message to the Server, requesting to change the room.
+		 * 
+		 */
+		public static void changeRoomRequest(String newroom) {
+			try {
+				stream.out.writeObject( new ChangeRoomMessage(userName, newroom, roomName) );
+				stream.out.reset();
+				System.out.println("Change room req: old/new room:  " + roomName + " , " + newroom);
+			} catch (IOException e) {e.printStackTrace();}
+		}
+		
+		
 		public void run() {
 			
 			Message msg;
 			try {
 				while (( (msg = (Message) stream.in.readObject()) != null) && (!Thread.currentThread().isInterrupted())){
-					//System.out.println("Testing in.redobject() in Client:");
+
 					if (msg instanceof UpdateUser) {
 						{synchronized(this) {
 
@@ -272,9 +339,14 @@ import java.util.ArrayList;
 						UpdateUser help = (UpdateUser) msg;
 						Platform.runLater(()-> {
 							window.addUser(help.roomName, help.userName);
-							window.showUsersScrollPane(help.userName);	 } );
+							//window.currentroom = help.roomName;
+							//roomName = help.roomName;
+							//window.setRooms(window.rooms);
+							window.showUsersScrollPane();	
+							} );
 						}
 					}}
+					
 					if (msg instanceof UserJoinedMessage) {
 						{synchronized(this) {
 
@@ -287,6 +359,23 @@ import java.util.ArrayList;
 							window.scrollpane.setVvalue(1.0);  } );
 						}
 					}}
+					
+					if(msg instanceof RoomsMessage) {
+						{synchronized(this) {
+							
+							System.out.println("Client: in RUN: instanceofRoomsMessage:");
+							RoomsMessage help = (RoomsMessage) msg;
+				            Platform.runLater(()-> {
+								rooms = help.rooms;
+								window.setRooms(rooms);
+								roomName = window.currentroom;
+								userName = window.currentuser;
+				            	//window.showUsersScrollPane(); 
+				            	} );
+
+						}
+					}}
+					
 					if (msg instanceof UpdateMessage ) {
 						{synchronized(this) {
 							
@@ -298,8 +387,31 @@ import java.util.ArrayList;
 								window.text = window.chatLog.text;
 								window.settextflow(help.text);
 								window.scrollpane.setContent(window.textflow);
-								window.type.setText("");
 								window.scrollpane.setVvalue(1.0); } );
+						}}
+		
+					}
+					if (msg instanceof UserLeftMessage ) {
+						{synchronized(this) {
+							
+							System.out.println("Client: in RUN: instanceofUserLeft:");
+							UserLeftMessage help = (UserLeftMessage) msg;
+							System.out.println("Client: User left: " + help.text + " .");
+				            Platform.runLater(()-> {
+				            	//window.removeUser(help.roomName, help.userName);
+				            
+								window.chatLog.addText(help.text);
+								window.text = window.chatLog.text;
+								window.setTextFlowLeft(help.text);
+								window.scrollpane.setContent(window.textflow);
+								window.scrollpane.setVvalue(1.0);
+
+								window.showUsersScrollPane();
+								
+								window.setListViewRoomsCellColor();
+				        		window.setListViewUsersCellColor();
+
+								} );
 						}}
 		
 					}
