@@ -381,6 +381,7 @@ import java.util.ArrayList;
 					
 						UserJoinedMessage help= (UserJoinedMessage) msg;
 						Platform.runLater(()-> {
+							window.chatLog.addText(help.text);
 							window.setTextFlowJoined(help.text);
 							window.scrollpane.setContent(window.textflow);
 							window.scrollpane.setVvalue(1.0);  } );
@@ -427,7 +428,6 @@ import java.util.ArrayList;
 							System.out.println("Client: User left: " + help.text + " .");
 				            Platform.runLater(()-> {
 				            	//window.removeUser(help.roomName, help.userName);
-				            
 								window.chatLog.addText(help.text);
 								window.text = window.chatLog.text;
 								window.setTextFlowLeft(help.text);

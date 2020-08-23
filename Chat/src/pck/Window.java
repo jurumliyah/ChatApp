@@ -276,6 +276,8 @@ public class Window {
 			 
 		 }
 		 this.scrollpane3.getChildren().addAll(usersLabel, this.listViewUsers);	
+		 setListViewRoomsCellColor();
+ 		 setListViewUsersCellColor();
 
 	 }
 
