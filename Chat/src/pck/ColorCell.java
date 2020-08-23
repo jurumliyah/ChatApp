@@ -22,7 +22,7 @@ class ColorCell extends ListCell<String> {
         } else {
             setText(item);
             if (item.equals(str)) {
-                setStyle("-fx-control-inner-background: " + Window.getColorCode(color) + ";");
+                setStyle("-fx-control-inner-background: " + Window.getDarkColorCode(color) + ";");
             } else {
                 setStyle("");
             }

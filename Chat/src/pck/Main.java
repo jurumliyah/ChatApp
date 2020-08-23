@@ -223,7 +223,8 @@ import java.util.ArrayList;
 	         });
 
 	    	Stage stage = new Stage();
-			stage.setScene(new Scene(root2,600,400));
+	    	scene = new Scene(root2, 800,600);
+			stage.setScene(scene);
 			stage.show();
 			
 	    }
@@ -370,7 +371,8 @@ import java.util.ArrayList;
 								window.setRooms(rooms);
 								roomName = window.currentroom;
 								userName = window.currentuser;
-				            	//window.showUsersScrollPane(); 
+				            	//
+								window.showUsersScrollPane(); 
 				            	} );
 
 						}
