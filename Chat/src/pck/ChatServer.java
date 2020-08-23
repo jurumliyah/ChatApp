@@ -18,8 +18,9 @@ public class ChatServer extends Thread {
 	static ArrayList<ClientThread> clientThreads = new ArrayList<ClientThread>();
 	static ServerSocket server;
 	static Socket socket;
+	static boolean online = false;
 	
-	public static void main(String[] args) {
+	ChatServer (){
 		chatLog = new ChatLog("");
 		rooms.add(new Room("room1"));
 		rooms.add(new Room("room2"));
@@ -33,10 +34,34 @@ public class ChatServer extends Thread {
 		rooms.add(new Room("room10"));
 		rooms.add(new Room("room11"));
 		
+	}
+	public static void openServer(){
+		online = true;
 		Thread serverThread = new ChatServer();
 		serverThread.start();
 	}
+	public static void closeServer(){
 	
+		Thread.currentThread().interrupt();
+		online = false;
+		for (ClientThread ct : clientThreads) {
+			try {
+				ct.stream.out.close();
+				ct.stream.in.close();
+				ct.stream.socket.close();
+				System.out.println("Closing Client Threads");
+				ct.interrupt();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	
+		}
+		
+		try {
+			server.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
 	 static void updateUser(String roomName, String userName) {
 
 		UpdateUser msg = new UpdateUser(roomName, userName) ; 
@@ -148,7 +173,7 @@ public class ChatServer extends Thread {
 			server = new ServerSocket(port);
 		} catch (IOException e1) {e1.printStackTrace();}
 
-		while(true) {
+		while(!Thread.currentThread().isInterrupted() && online) {
 			try {
 				socket = server.accept();
 				Thread clientThread = new ClientThread(socket);

@@ -1,0 +1,12 @@
+.border-pane .viewport {
+  
+    -fx-background-image: url("/resources/image.png");
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: auto;
+
+  }
+
+.border-pane {
+    -fx-background-color:transparent;
+}
