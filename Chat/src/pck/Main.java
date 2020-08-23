@@ -130,7 +130,9 @@ import java.util.ArrayList;
         	if (userName.length() == 0) {
         		userName = getRandomName();
     			button.getScene().getWindow().hide();
+    			System.out.println(" TEST 1");
         		addMeToRoom(roomName, userName);
+        		System.out.println(" TEST 1");
         		window.currentroom = roomName;
         		window.currentuser = userName;
         		window.setListViewRoomsCellColor();
@@ -204,21 +206,40 @@ import java.util.ArrayList;
 	         window.listViewRooms.setOnMouseClicked((MouseEvent event) -> {
 	             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2){
 	                 System.out.println(window.listViewRooms.getSelectionModel().getSelectedItem());
+		             String newRoom = window.listViewRooms.getSelectionModel().getSelectedItem();
+
 	                 // Create new PopUp for double click on Room List (Ask the user about changing Room) 
-	                 ChangeRoomWindow changeRoomWindow = new ChangeRoomWindow();
+	                 ChangeRoomWindow changeRoomWindow = new ChangeRoomWindow(newRoom);
 	                 // If answer is NO -> close PopUp and do nothing else
 	                 changeRoomWindow.button2.setOnAction(e -> {changeRoomWindow.primaryStage.close();});
 	                 // If answer is YES -> close PopUp and implement changeroom methods
 	                 changeRoomWindow.button.setOnAction(e -> {
 	                 //window.changeRoom(window.listViewRooms.getSelectionModel().getSelectedItem());
-	                String newRoom = window.listViewRooms.getSelectionModel().getSelectedItem();
-	               	changeRoomRequest(window.listViewRooms.getSelectionModel().getSelectedItem());
+	               	changeRoomRequest(newRoom);
 	               	//roomName = "";
 	               	changeRoomWindow.primaryStage.close();
 
 	               	});
+	             }
+	         });
+	         
+	         window.listViewUsers.setOnMouseClicked((MouseEvent event) -> {
+	             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2){
+	                 System.out.println(window.listViewUsers.getSelectionModel().getSelectedItem());
+		             String user = window.listViewUsers.getSelectionModel().getSelectedItem();
 
+	                // Create new PopUp for double click on Room List (Ask the user about changing Room) 
+	                PrivateChatWindow privatechatwindow = new PrivateChatWindow(user);
+	                // If answer is NO -> close PopUp and do nothing else
+	                privatechatwindow.button2.setOnAction(e -> {privatechatwindow.primaryStage.close();});
+	                // If answer is YES -> close PopUp and implement changeroom methods
+	                privatechatwindow.button.setOnAction(e -> {
+	                //window.changeRoom(window.listViewRooms.getSelectionModel().getSelectedItem());
+	            	privateChatRequest(userName, user);
+	                //roomName = "";
+	                privatechatwindow.primaryStage.close();
 
+	               	});
 	             }
 	         });
 
@@ -323,6 +344,11 @@ import java.util.ArrayList;
 				stream.out.reset();
 				System.out.println("Change room req: old/new room:  " + roomName + " , " + newroom);
 			} catch (IOException e) {e.printStackTrace();}
+		}
+		public static void privateChatRequest (String user1, String user2) {
+			/*
+			 * TO IMPLEMENT
+			 */
 		}
 		
 		

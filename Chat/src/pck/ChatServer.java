@@ -92,14 +92,15 @@ public class ChatServer extends Thread {
 				}
 		}
 		public static void sendRooms() {
-			for (ClientThread ct : clientThreads) { 				
-				try {
-					ct.stream.out.writeObject(new RoomsMessage(rooms));
-					ct.stream.out.reset();
-				} catch (IOException e) {e.printStackTrace();}
+			for (ClientThread ct : clientThreads) { 
+				if(ct.myRoomName != null) {
+					try {
+						ct.stream.out.writeObject(new RoomsMessage(rooms));
+						ct.stream.out.reset();
+					} catch (IOException e) {e.printStackTrace();}
+				}
 			}
 		}
-		
 		
 		static String getTime() {
 			String str = null;

@@ -1,6 +1,5 @@
 package pck;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -8,18 +7,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class ChangeRoomWindow {
+public class PrivateChatWindow {
 	Stage primaryStage;
 	Button button;
 	Button button2;
-	String room;
-	ChangeRoomWindow(String room){
-		this.room = room;
-		
+	String user;
+	PrivateChatWindow(String user){
+		this.user = user;
 		primaryStage = new Stage();
 		Scene scene;
 		BorderPane root = new BorderPane();
@@ -28,7 +25,7 @@ public class ChangeRoomWindow {
 		VBox vbox = new VBox();
 		HBox hbox = new HBox();
 		
-		String info = "Do you want to enter room: " + this.room + " ?";
+		String info = "Do you want to chat privately with user: " + this.user + " ?";
 		Label label = new Label();
 		label.setText(info);
 		label.setAlignment(Pos.CENTER);
