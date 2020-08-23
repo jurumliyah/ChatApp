@@ -212,7 +212,7 @@ public class Window {
 		txt.setText(str);
 		txt.setFill(Color.ORANGE);
 		txt.setFont(Font.font ("Verdana", 10));
-		this.textflow.getChildren().addAll(txt);
+		this.textflow.getChildren().add(txt);
 	    this.textflow.getChildren().add(new Text(System.lineSeparator()));
 		
 	}
@@ -309,8 +309,8 @@ public class Window {
 	 }
 	 static void styleTheme(String color) {
 		 String backgroundcolor = getBackgroundColorCode(color);
-		 scrollpane.setStyle(nofocus + "-fx-background-color: " + backgroundcolor + "; -fx-background: " + backgroundcolor + ";");
-			 
+		 scrollpane.setStyle(nofocus + "-fx-background-color: " + backgroundcolor + "; -fx-background: " + backgroundcolor + "; -fx-background-radius: 0px;");
+		 
 		 listViewRooms.setStyle("-fx-control-inner-background: " + getTabColorCode(color));
 	     listViewUsers.setStyle("-fx-control-inner-background: " + getTabColorCode(color));
 		 button.setStyle("-fx-background-color: "+ getDarkColorCode(color) + "; -fx-text-fill: white; -fx-background-radius: 0px;");

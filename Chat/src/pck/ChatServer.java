@@ -101,6 +101,38 @@ public class ChatServer extends Thread {
 				}
 			}
 		}
+		public static void sendPrivateRequest(PrivateChatRequest msg) {
+			for (ClientThread ct : clientThreads) {
+				if (ct.myName.equals(msg.user2)) {
+					try {
+						System.out.println("SERVER : SENDING REQUEST TO USER: " + msg.user2);
+
+						ct.stream.out.writeObject(msg);
+						ct.stream.out.reset();
+					} catch (IOException e) {e.printStackTrace();}
+				}
+			}
+		}
+		public static void sendStartPrivateChat(StartPrivateChatMessage msg) {
+			for (ClientThread ct : clientThreads) {
+				if (ct.myName.equals(msg.user1) || ct.myName.equals(msg.user2)) {
+					try {
+						ct.stream.out.writeObject(msg);
+						ct.stream.out.reset();
+					} catch (IOException e) {e.printStackTrace();}
+				}
+			}
+		}
+		public static void broadcastPrivateMessage (PrivateMessage msg) {
+			for (ClientThread ct : clientThreads) {
+				if (ct.myName.equals(msg.user1) || ct.myName.equals(msg.user2)) {
+					try {
+						ct.stream.out.writeObject(msg);
+						ct.stream.out.reset();
+					} catch (IOException e) {e.printStackTrace();}
+				}
+			}
+		}
 		
 		static String getTime() {
 			String str = null;
@@ -220,14 +252,30 @@ public class ChatServer extends Thread {
 					sendRooms();
 					broadcastUserLeft(userName, oldRoom, newRoom);
 					//sendRooms();
-
 					//addUser(userName, myRoomName);
 					//sendRooms();
-				
 					updateUser(myRoomName, myName);
 					broadcastNewUser(myRoomName, myName);
-
 				}
+				
+				if (msg instanceof PrivateChatRequest ) {
+					System.out.println("SERVER: instance PRIVATE REQUEST: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
+					PrivateChatRequest help = (PrivateChatRequest)msg;
+					sendPrivateRequest(help);
+				}
+				if (msg instanceof AcceptedPrivate ) {
+					System.out.println("SERVER: instance PRIVATE REQUEST: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
+					AcceptedPrivate help = (AcceptedPrivate)msg;
+					StartPrivateChatMessage m = new StartPrivateChatMessage(help.user1, help.user2);
+					sendStartPrivateChat(m);
+				}
+				
+				if (msg instanceof PrivateMessage ) {
+					System.out.println("SERVER: instance PrivateMessage: ClientTHREAD NAME: " + Thread.currentThread().getName() + "///////////////////////////");
+					PrivateMessage help = (PrivateMessage)msg;
+					broadcastPrivateMessage(help);
+				}
+
 
 				}
 				

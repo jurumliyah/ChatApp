@@ -28,6 +28,7 @@ import java.util.ArrayList;
  
 	public class Main extends Application implements Runnable {
 		
+		static ArrayList<PrivateChat>  privatechats = new ArrayList<PrivateChat>();
 		static TextField namefield = new TextField();
         static Button button =  new Button("Connect");
         static ChoiceBox choicebox = new ChoiceBox();
@@ -214,11 +215,8 @@ import java.util.ArrayList;
 	                 changeRoomWindow.button2.setOnAction(e -> {changeRoomWindow.primaryStage.close();});
 	                 // If answer is YES -> close PopUp and implement changeroom methods
 	                 changeRoomWindow.button.setOnAction(e -> {
-	                 //window.changeRoom(window.listViewRooms.getSelectionModel().getSelectedItem());
-	               	changeRoomRequest(newRoom);
-	               	//roomName = "";
-	               	changeRoomWindow.primaryStage.close();
-
+	                	 changeRoomRequest(newRoom);
+	                	 changeRoomWindow.primaryStage.close();
 	               	});
 	             }
 	         });
@@ -229,16 +227,14 @@ import java.util.ArrayList;
 		             String user = window.listViewUsers.getSelectionModel().getSelectedItem();
 
 	                // Create new PopUp for double click on Room List (Ask the user about changing Room) 
-	                PrivateChatWindow privatechatwindow = new PrivateChatWindow(user);
+	                PrivateChatPopUp privatechatwindow = new PrivateChatPopUp(user);
 	                // If answer is NO -> close PopUp and do nothing else
 	                privatechatwindow.button2.setOnAction(e -> {privatechatwindow.primaryStage.close();});
 	                // If answer is YES -> close PopUp and implement changeroom methods
 	                privatechatwindow.button.setOnAction(e -> {
-	                //window.changeRoom(window.listViewRooms.getSelectionModel().getSelectedItem());
-	            	privateChatRequest(userName, user);
-	                //roomName = "";
-	                privatechatwindow.primaryStage.close();
-
+	                	String introduce = privatechatwindow.input.getText();
+	                	privateChatRequest(userName, user, introduce);
+	                	privatechatwindow.primaryStage.close();
 	               	});
 	             }
 	         });
@@ -339,17 +335,55 @@ import java.util.ArrayList;
 		 * 
 		 */
 		public static void changeRoomRequest(String newroom) {
+			ChangeRoomMessage msg = new ChangeRoomMessage(userName, newroom, roomName);
 			try {
-				stream.out.writeObject( new ChangeRoomMessage(userName, newroom, roomName) );
+				stream.out.writeObject(msg);
 				stream.out.reset();
 				System.out.println("Change room req: old/new room:  " + roomName + " , " + newroom);
 			} catch (IOException e) {e.printStackTrace();}
 		}
-		public static void privateChatRequest (String user1, String user2) {
-			/*
-			 * TO IMPLEMENT
-			 */
+		/*
+		 * Client sends Message to the Server, requesting private chat with selected user/client
+		 */
+		public static void privateChatRequest (String user1, String user2, String introduce) {
+			PrivateChatRequest msg = new PrivateChatRequest(user1, user2, introduce);
+			try {
+				System.out.println("Sending request to server: chat with " + msg.user2);
+				stream.out.writeObject(msg);
+				stream.out.reset();
+			} catch (IOException e) {e.printStackTrace();}
 		}
+		
+		public static void createRequestPopUp(String user1, String user2, String introduce) {
+			PrivateChatRequestPopUp popup = new PrivateChatRequestPopUp(user1, introduce);
+			popup.button.setOnAction(e -> {
+				sendAccept(user1, user2);
+            	popup.stage.close();
+			});
+			popup.button2.setOnAction(e -> { 
+            	popup.stage.close();
+
+			});
+		}
+		/*
+		 * Notify 	Server about accepting private chat request
+		 */
+		public static void sendAccept(String user1, String user2) {
+			//user 2 accepted user 1
+			AcceptedPrivate msg = new AcceptedPrivate(user1, user2);
+			try {
+				stream.out.writeObject(msg);
+				stream.out.reset();
+			} catch (IOException e) {e.printStackTrace();}
+		}
+		public static void sendPrivateMessage(String user1, String user2, String message) {
+			PrivateMessage msg = new PrivateMessage(user1, user2, window.currentuser, message);
+			try {
+				stream.out.writeObject(msg);
+				stream.out.reset();
+			} catch (IOException e) {e.printStackTrace();}
+		}
+		
 		
 		
 		public void run() {
@@ -437,12 +471,56 @@ import java.util.ArrayList;
 								window.showUsersScrollPane();
 								
 								window.setListViewRoomsCellColor();
-				        		window.setListViewUsersCellColor();
-
-								} );
+				        		window.setListViewUsersCellColor(); } );
 						}}
-		
+					}					
+					if (msg instanceof PrivateChatRequest) {
+						{synchronized(this) {
+
+							System.out.println("Client: in RUN: instanceof PrivateChatREQUEST:");
+							PrivateChatRequest help = (PrivateChatRequest)msg;
+				            Platform.runLater(()-> {
+
+				            	createRequestPopUp(help.user1, help.user2, help.introduce);} );
+						}}
+					}	
+					if (msg instanceof StartPrivateChatMessage) {
+						{synchronized(this) {
+
+							System.out.println("Client: in RUN: instanceof StartPrivateChatMessage:");
+							StartPrivateChatMessage help = (StartPrivateChatMessage)msg;
+				            Platform.runLater(()-> {
+				            	String str1 = help.user1;
+				            	String str2 = help.user2;
+				            	String string = str1.equals(window.currentuser) ? str2 : str1;
+				            	PrivateChat chat = new PrivateChat(string);
+				            	privatechats.add(chat);
+				            	chat.button.setOnAction(e-> { System.out.println("test novi");sendPrivateMessage(str1, str2, chat.input.getText()); });
+				            	chat.input.setOnAction(e-> { System.out.println("test novi");sendPrivateMessage(str1, str2, chat.input.getText()); });
+
+				            	} );
+						}}
 					}
+					if (msg instanceof PrivateMessage) {
+						{synchronized(this) {
+							System.out.println("Client: in RUN: instanceof PrivateMessage:");
+							PrivateMessage help = (PrivateMessage)msg;
+				            Platform.runLater(()-> {
+				            	String user1 = help.user1;
+				            	String user2 = help.user2;
+				            	String sendingUser = help.sendingUser;
+				            	String message = help.message;
+				            	for (PrivateChat chat : privatechats) {
+				            		if (window.currentuser.equals(user1) || window.currentuser.equals(user2))
+				            		//if ((chat.id.equals(user1) && !user1.equals(window.currentuser)) || (chat.id.equals(user2) && !user2.equals(window.currentuser)))
+				            			chat.addPrivateMessage(message, sendingUser);
+				            	}
+
+				            } );
+						}}
+					}
+					
+					
 				}
 			} catch (ClassNotFoundException | IOException e) {e.printStackTrace();
 			}
