@@ -1,4 +1,4 @@
-package pck;
+package popups;
 
 import java.awt.Insets;
 
@@ -10,10 +10,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class Popup {
+public class NamePopUp {
 
 	
-	Popup(){
+	public NamePopUp(){
 		Stage primaryStage = new Stage();
 		Scene scene;
 		BorderPane root = new BorderPane();

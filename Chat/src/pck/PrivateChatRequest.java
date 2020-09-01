@@ -1,5 +1,7 @@
 package pck;
 
+import Messages.Message;
+
 public class PrivateChatRequest extends Message {
 	String user1;
 	String user2;

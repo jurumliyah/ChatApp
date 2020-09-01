@@ -1,4 +1,4 @@
-package pck;
+package popups;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,13 +12,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class PrivateChatPopUp {
-	Stage primaryStage;
-	Button button;
-	Button button2;
+	public Stage primaryStage;
+	public Button button;
+	public Button button2;
 	String user;
-	TextField input;
+	public TextField input;
 	
-	PrivateChatPopUp(String user){
+	public PrivateChatPopUp(String user){
 		input = new TextField();
 		input.setMinSize(200, 80);
 		input.setMinSize(200, 80);

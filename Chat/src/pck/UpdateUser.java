@@ -1,5 +1,7 @@
 package pck;
 
+import Messages.Message;
+
 public class UpdateUser extends Message{
 	String userName;
 	String roomName;

@@ -3,13 +3,26 @@ package pck;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class ChatServer extends Thread {
+import Messages.AddMeMessage;
+import Messages.ChangeRoomMessage;
+import Messages.CheckUserMessage;
+import Messages.Message;
+import Messages.PrivateMessage;
+import Messages.RoomsMessage;
+import Messages.ServerDownMessage;
+import Messages.StartPrivateChatMessage;
+import Messages.UpdateMessage;
+import Messages.UserJoinedMessage;
+import Messages.UserLeftMessage;
+
+public class ChatServer extends Thread implements Serializable {
 
 	static ChatLog chatLog;
 	static int i = 0;
@@ -19,8 +32,7 @@ public class ChatServer extends Thread {
 	static ServerSocket server;
 	static Socket socket;
 	static boolean online = false;
-	
-	ChatServer (){
+	static void initRooms() {
 		chatLog = new ChatLog("");
 		rooms.add(new Room("room1"));
 		rooms.add(new Room("room2"));
@@ -33,34 +45,52 @@ public class ChatServer extends Thread {
 		rooms.add(new Room("room9"));
 		rooms.add(new Room("room10"));
 		rooms.add(new Room("room11"));
-		
 	}
+//	public static void main(String args[]) {
+//		openServer();
+//	}
 	public static void openServer(){
 		online = true;
 		Thread serverThread = new ChatServer();
 		serverThread.start();
 	}
-	public static void closeServer(){
+	public void closeServer(){
 	
-		Thread.currentThread().interrupt();
-		online = false;
 		for (ClientThread ct : clientThreads) {
 			try {
+				broadcastServerDown();
 				ct.stream.out.close();
 				ct.stream.in.close();
-				ct.stream.socket.close();
+				if (ct.stream.socket != null){
+					ct.stream.socket.close();
+					}
 				System.out.println("Closing Client Threads");
 				ct.interrupt();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}	
 		}
-		
-		try {
-			server.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
+		if (server != null) {
+			try {
+				server.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}		
+		}
+		Thread.currentThread().interrupt();
+		online = false;
+
+	}
+	
+	static void broadcastServerDown() {
+		for (ClientThread ct : clientThreads) { 				
+				try { 		
+					Message msg = new ServerDownMessage();
+					ct.stream.out.writeObject(msg); 						
+					ct.stream.out.reset(); }
+				catch (IOException e) {e.printStackTrace();}
+				
+			}
 	}
 	 static void updateUser(String roomName, String userName) {
 
@@ -166,11 +196,21 @@ public class ChatServer extends Thread {
 		    str = format.format(time);
 		    return str;		
 		}
+		
+		static boolean isOnline() throws IOException {
+			  try(ServerSocket s = new ServerSocket(port)) {
+			    return false;
+			  } catch (java.net.BindException e) {
+			    return true;
+			  }
+			}
 	
 	@Override
 	public void run() {
+		initRooms();
 		try {
 			server = new ServerSocket(port);
+			System.out.println("Server started");
 		} catch (IOException e1) {e1.printStackTrace();}
 
 		while(!Thread.currentThread().isInterrupted() && online) {

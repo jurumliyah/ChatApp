@@ -1,4 +1,4 @@
-package pck;
+package popups;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,12 +13,12 @@ import javafx.stage.Stage;
 public class PrivateChatRequestPopUp  extends Thread{
 	String user1;
 	String introduce;
-	Stage stage;
-	Button button;
-	Button button2;
+	public Stage stage;
+	public Button button;
+	public Button button2;
 	String info;
 
-	PrivateChatRequestPopUp(String user1, String introduce){
+	public PrivateChatRequestPopUp(String user1, String introduce){
 		this.user1 = user1;
 		this.introduce = introduce;
 		this.info = "User " + user1 + " has requested private chat with you.";

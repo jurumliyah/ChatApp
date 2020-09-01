@@ -17,6 +17,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import popups.NamePopUp;
+import popups.PrivateChatPopUp;
+import popups.PrivateChatRequestPopUp;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,6 +28,18 @@ import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+
+import Messages.AddMeMessage;
+import Messages.ChangeRoomMessage;
+import Messages.CheckUserMessage;
+import Messages.Message;
+import Messages.PrivateMessage;
+import Messages.RoomsMessage;
+import Messages.ServerDownMessage;
+import Messages.StartPrivateChatMessage;
+import Messages.UpdateMessage;
+import Messages.UserJoinedMessage;
+import Messages.UserLeftMessage;
  
 	public class Main extends Application implements Runnable {
 		
@@ -158,7 +173,7 @@ import java.util.ArrayList;
         	        Thread t1 =new Thread(runnable);
         	        t1.start();
             		 }
-            	else { System.out.println("Enter Another name"); new Popup();}
+            	else { System.out.println("Enter Another name"); new NamePopUp();}
         		}
         	}
 	    
@@ -515,6 +530,15 @@ import java.util.ArrayList;
 				            		//if ((chat.id.equals(user1) && !user1.equals(window.currentuser)) || (chat.id.equals(user2) && !user2.equals(window.currentuser)))
 				            			chat.addPrivateMessage(message, sendingUser);
 				            	}
+
+				            } );
+						}}
+					}
+					if (msg instanceof ServerDownMessage) {
+						{synchronized(this) {
+							System.out.println("Client: in RUN: instanceof ServerDownMessage:");
+				            Platform.runLater(()-> {
+
 
 				            } );
 						}}

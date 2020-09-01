@@ -1,14 +1,14 @@
-package pck;
+package Messages;
 
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class UpdateMessage extends Message {
 
-	String text;
+	public String text;
 	//String line;
-	UpdateMessage(String text ){
+	public UpdateMessage(String text ){
 		this.text = text;
 	}
-	UpdateMessage(){}
+	public UpdateMessage(){}
 }

@@ -1,8 +1,9 @@
-package pck;
+package Messages;
 
 public class UserJoinedMessage extends Message {
 	public String text;
-	UserJoinedMessage(String text) {
+	
+	public UserJoinedMessage(String text) {
 		this.text = text;
 	}
 	

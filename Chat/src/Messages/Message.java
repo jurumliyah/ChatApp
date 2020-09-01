@@ -1,8 +1,8 @@
-package pck;
+package Messages;
 
 import java.io.Serializable;
 
 public class Message implements Serializable{
-    Message(){}
+	public Message(){}
 
 }
