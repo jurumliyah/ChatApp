@@ -83,12 +83,12 @@ White Theme:
 Application ist tested and works fine.  
 There are still many new functions to implement, such as sending files, images, etc.  
 Feel free to download and test it.  
-Source Code is in folder [Chat](https://github.com/jurumliyah/ChatApp/Chat) in this [repository](https://github.com/jurumliyah/ChatApp).  
+Source Code is in folder [Chat](https://github.com/jurumliyah/ChatApp/tree/master/Chat/) in this [Repository](https://github.com/jurumliyah/ChatApp/).  
 
 In order to run the server, open "ChatGUI.java" from package "pck".  
 To run the program responsible for client, open "Main.java" from package "pck".  
   
-You can also download 2 executable files from the folder [ChatExecutables](https://github.com/jurumliyah/ChatApp/ChatExecutables/)  
+You can also download 2 executable files from the folder [ChatExecutables](https://github.com/jurumliyah/ChatApp/tree/master/ChatExecutables/).    
 and directly start server and client.  
 _Code is not yet commented, so you may find it hard to navigate through it._  
 
