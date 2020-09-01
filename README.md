@@ -80,8 +80,8 @@ White Theme:
 ![GitHub Logo](/ChatImages/white.png)  
 
 ### Info  
-Application ist tested and works fine.  
-There are still many new functions to implement, such as sending files, images, etc.  
+Application is tested and works fine.  
+There are still many new functions to implement, such as sending files, images, etc., creating and downloading log files (chat history), etc.  
 Feel free to download and test it.  
 Source Code is in folder [Chat](https://github.com/jurumliyah/ChatApp/tree/master/Chat/) in this [Repository](https://github.com/jurumliyah/ChatApp/).  
 
@@ -90,8 +90,8 @@ To run the program responsible for client, open "Main.java" from package "pck".
   
 You can also download 2 executable files from the folder [ChatExecutables](https://github.com/jurumliyah/ChatApp/tree/master/ChatExecutables/).    
 and directly start server and client.  
-_Code is not yet commented, so you may find it hard to navigate through it._  
+_Code is not yet commented, so you may find it hard to navigate through._  
 
-Feel free to conntact.  :)
+Feel free to conntact.   :)
 
 
