@@ -88,7 +88,8 @@ Source Code is in folder [Chat](https://github.com/jurumliyah/ChatApp/Chat) in t
 In order to run the server, open "ChatGUI.java" from package "pck".  
 To run the program responsible for client, open "Main.java" from package "pck".  
   
-You can also download 2 executable files from the folder Executable, and directly start server, then client.  
+You can also download 2 executable files from the folder [ChatExecutables](https://github.com/jurumliyah/ChatApp/ChatExecutables/)  
+and directly start server and client.  
 _Code is not yet commented, so you may find it hard to navigate through it._  
 
 Feel free to conntact.  :)
