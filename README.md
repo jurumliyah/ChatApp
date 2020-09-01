@@ -1,3 +1,4 @@
+![GitHub Logo](/ChatImages/logo.png)
 # Chatify
 ### Chatify is a Desktop Chat Application developed in Java.
 ### Project consists of 2 main running programms:
@@ -13,3 +14,4 @@
 
 ## 1: Server GUI
 ### This is a simple JavaFX Window, where admin can start or close the server
+![GitHub Logo](/ChatImages/1.png)
