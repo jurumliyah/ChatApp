@@ -60,6 +60,10 @@ User B:
 If user B accepts request for private chat, the server asks both users (A, B) to open new private chat window, where they can start chatting:  
 ![GitHub Logo](/ChatImages/6.png)  
   
+When server is shut down, all user get the message that the server went down:  
+  
+![GitHub Logo](/ChatImages/7.png)   
+
   
 #### Chat example and other color themes  
 Blue theme:  
@@ -75,5 +79,18 @@ White Theme:
   
 ![GitHub Logo](/ChatImages/white.png)  
 
+### Info  
+Application ist tested and works fine.  
+There are still many new functions to implement, such as sending files, images, etc.  
+Feel free to download and test it.  
+Source Code is in folder [Chat](https://github.com/jurumliyah/ChatApp/Chat) in this [repository](https://github.com/jurumliyah/ChatApp).  
+
+In order to run the server, open "ChatGUI.java" from package "pck".  
+To run the program responsible for client, open "Main" from package "pck".  
+  
+You can also download 2 executable files from the folder Executable, and directly start server, then client.  
+_Code is not yet commented, so you may find it hard to navigate through it._  
+
+Feel free to conntact.  :)
 
 
