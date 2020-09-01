@@ -53,7 +53,7 @@ User A:
 ![GitHub Logo](/ChatImages/5.png)  
 If user A clicks "Yes": request for private chat is being sent to the server -> server finds user B and sends him request from user A.  
 User B:  
-![GitHub Logo](/ChatImages/6.png)  
+![GitHub Logo](/ChatImages/5b.png)  
 If user B accepts request for private chat, the server asks both users (A, B) to open new private chat window, where they can start chatting:  
 ![GitHub Logo](/ChatImages/6.png)  
 
