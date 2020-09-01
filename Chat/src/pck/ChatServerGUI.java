@@ -97,8 +97,7 @@ public class ChatServerGUI extends Application{
 		
 		root.setStyle(Window.nofocus + "-fx-background-color: #252525; -fx-background: #252525;  -fx-background-radius: 0px;");
 		root.setCenter(center);
-		root.setBottom(label2);
-		//root.setTop(view);
+		//root.setBottom(label2);
     	launch(args);
     }
 	public void start(Stage primaryStage) throws Exception {
