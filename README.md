@@ -2,7 +2,7 @@
 # Chatify
 ### Chatify is a Desktop Chat Application developed in Java.
 This Application allows multiple clients to chat in different rooms.  
-Users can also chat with another user privately.  
+Users can also chat with another users privately.  
 Graphic User Interface is responsive, and also offers user to change theme color. 
 
 #### Project consists of 2 main running programms:
@@ -37,10 +37,21 @@ Main chat window has two scrollpanes on the right side:
 At the very top of the window is a bar, where user can change theme color.  
 In the center of main chat window is textflow, where all messages are displayed.  
 At the bottom is input field for typing the message and sending it, either by pressing enter or by clicking "Send".  
-_(Empty messages are not allowed)_
-![GitHub Logo](/ChatImages/3.png)
+_(Empty messages are not allowed)_  
+![GitHub Logo](/ChatImages/3.png)  
+  
+### Changing room  
+Users can change room, by double clicking on the room user wants to join.  
+![GitHub Logo](/ChatImages/4.png)  
+If user click yes, his room is changed, and all content in the window is updated.
+  
+### Private Chat
+Beside interraction with all clients from chosen room, user may also start private chat with another user from same room.   
+After double clicking on another user's username, following popup will show up:  
+![GitHub Logo](/ChatImages/5.png)  
 
-### Client GUI is JavaFX window, where client(user) can interract with other users.
+
+### Client GUI is JavaFX window, where client(user) can interract with other users.  
 ![GitHub Logo](/ChatImages/2.png)
 
 
