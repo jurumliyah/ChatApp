@@ -55,10 +55,10 @@ public class ChatServer extends Thread implements Serializable {
 		serverThread.start();
 	}
 	public void closeServer(){
-	
+		
+		broadcastServerDown();
 		for (ClientThread ct : clientThreads) {
 			try {
-				broadcastServerDown();
 				ct.stream.out.close();
 				ct.stream.in.close();
 				if (ct.stream.socket != null){

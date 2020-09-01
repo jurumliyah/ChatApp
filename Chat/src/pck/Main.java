@@ -483,10 +483,7 @@ import Messages.UserLeftMessage;
 								window.scrollpane.setContent(window.textflow);
 								window.scrollpane.setVvalue(1.0);
 
-								window.showUsersScrollPane();
-								
-								window.setListViewRoomsCellColor();
-				        		window.setListViewUsersCellColor(); } );
+								window.showUsersScrollPane(); } );
 						}}
 					}					
 					if (msg instanceof PrivateChatRequest) {
@@ -537,8 +534,14 @@ import Messages.UserLeftMessage;
 					if (msg instanceof ServerDownMessage) {
 						{synchronized(this) {
 							System.out.println("Client: in RUN: instanceof ServerDownMessage:");
+							ServerDownMessage help = (ServerDownMessage)msg;
+							
 				            Platform.runLater(()-> {
-
+				            	window.chatLog.addText("Server is Down");
+								window.text = window.chatLog.text;
+								window.setTextFlowServerDown("Server is down");
+								window.scrollpane.setContent(window.textflow);
+								window.scrollpane.setVvalue(1.0);
 
 				            } );
 						}}

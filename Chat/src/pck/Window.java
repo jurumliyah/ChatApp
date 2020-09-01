@@ -147,23 +147,23 @@ public class Window {
         scrollpane.getStylesheets().add("styles/backgroundimage.css");
         
         red.setOnAction(e -> {
-	        currentcolor = "red";setListViewRoomsCellColor(); setListViewUsersCellColor();
+	        currentcolor = "red";
 	        styleTheme(currentcolor);
         });
         blue.setOnAction(e -> {
-	        currentcolor = "blue";setListViewRoomsCellColor();setListViewUsersCellColor();
+	        currentcolor = "blue";
 	        styleTheme(currentcolor);
         });
         green.setOnAction(e -> {
-	        currentcolor = "green";setListViewRoomsCellColor();setListViewUsersCellColor();
+	        currentcolor = "green";
 	        styleTheme(currentcolor);
         });
         defaultcolor.setOnAction(e -> {
-	        currentcolor = "defaultcolor";setListViewRoomsCellColor();setListViewUsersCellColor();
+	        currentcolor = "defaultcolor";
 	        styleTheme(currentcolor);
         });
         dark.setOnAction(e -> {
-            currentcolor = "darkcolor";setListViewRoomsCellColor();setListViewUsersCellColor();
+            currentcolor = "darkcolor";
             styleTheme(currentcolor);
             });
         
@@ -216,6 +216,15 @@ public class Window {
 	    this.textflow.getChildren().add(new Text(System.lineSeparator()));
 		
 	}
+	public void setTextFlowServerDown(String str) {
+		Text txt = new Text();
+		txt.setText(str);
+		txt.setFill(Color.RED);
+		txt.setFont(Font.font ("Verdana", 40));
+		this.textflow.getChildren().add(txt);
+	    this.textflow.getChildren().add(new Text(System.lineSeparator()));
+	}
+	
 	public void settextflow(String text) {
 		
 		//// color left part of text (Time in message)
@@ -276,8 +285,7 @@ public class Window {
 			 
 		 }
 		 this.scrollpane3.getChildren().addAll(usersLabel, this.listViewUsers);	
-		 setListViewRoomsCellColor();
- 		 setListViewUsersCellColor();
+
 
 	 }
 
