@@ -48,7 +48,14 @@ If user click yes, his room is changed, and all content in the window is updated
 ### Private Chat
 Beside interraction with all clients from chosen room, user may also start private chat with another user from same room.   
 After double clicking on another user's username, following popup will show up:  
+User A:  
 ![GitHub Logo](/ChatImages/5.png)  
+If user A clicks "Yes": request for private chat sent to the server -> server finds user B and send him request from user A.
+User B:  
+![GitHub Logo](/ChatImages/6.png)  
+If user B accepts request for private chat, the server asks both users (A, B) to open new private chat window, where they can start chatting:  
+![GitHub Logo](/ChatImages/6.png)  
+
 
 
 ### Client GUI is JavaFX window, where client(user) can interract with other users.  
