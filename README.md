@@ -59,5 +59,21 @@ User B:
     
 If user B accepts request for private chat, the server asks both users (A, B) to open new private chat window, where they can start chatting:  
 ![GitHub Logo](/ChatImages/6.png)  
+  
+  
+#### Chat example and other color themes  
+Blue theme:  
+![GitHub Logo](/ChatImages/blue.png)   
+  
+Green theme:  
+![GitHub Logo](/ChatImages/green.png)  
+  
+Red Theme:  
+![GitHub Logo](/ChatImages/red.png)  
+  
+White Theme:  
+  
+![GitHub Logo](/ChatImages/white.png)  
+
 
 
