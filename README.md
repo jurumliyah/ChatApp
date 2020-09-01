@@ -36,29 +36,25 @@ Main chat window has two scrollpanes on the right side:
 2: showing all users in the room, which user has chosen.  
 At the very top of the window is a bar, where user can change theme color.  
 In the center of main chat window is textflow, where all messages are displayed.  
-At the bottom is input field for typing the message and sending it, either by pressing enter or by clicking "Send".  
+At the bottom is input field for typing the message and sending it, either by pressing enter or by clicking "Send".   
 _(Empty messages are not allowed)_  
 ![GitHub Logo](/ChatImages/3.png)  
   
 ### Changing room  
 Users can change room, by double clicking on the room user wants to join.  
 ![GitHub Logo](/ChatImages/4.png)  
-If user click yes, his room is changed, and all content in the window is updated.
+If user click yes, his room is changed, and all content in the window is updated.  
   
 ### Private Chat
 Beside interraction with all clients from chosen room, user may also start private chat with another user from same room.   
 After double clicking on another user's username, following popup will show up:  
+
 User A:  
 ![GitHub Logo](/ChatImages/5.png)  
-If user A clicks "Yes": request for private chat sent to the server -> server finds user B and send him request from user A.
+If user A clicks "Yes": request for private chat is being sent to the server -> server finds user B and sends him request from user A.  
 User B:  
 ![GitHub Logo](/ChatImages/6.png)  
 If user B accepts request for private chat, the server asks both users (A, B) to open new private chat window, where they can start chatting:  
 ![GitHub Logo](/ChatImages/6.png)  
-
-
-
-### Client GUI is JavaFX window, where client(user) can interract with other users.  
-![GitHub Logo](/ChatImages/2.png)
 
 
